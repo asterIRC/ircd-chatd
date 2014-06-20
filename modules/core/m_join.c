@@ -866,6 +866,30 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 				len_nick++;
 				len_uid++;
 			}
+			if(fl & CHFL_SUPEROP)
+			{
+				*ptr_uid++ = '&';
+				len_nick++;
+				len_uid++;
+			}
+			if(fl & CHFL_HALFOP)
+			{
+				*ptr_uid++ = '%';
+				len_nick++;
+				len_uid++;
+			}
+			if(fl & CHFL_BOP)
+			{
+				*ptr_uid++ = '!';
+				len_nick++;
+				len_uid++;
+			}
+			if(fl & CHFL_QOP)
+			{
+				*ptr_uid++ = '~';
+				len_nick++;
+				len_uid++;
+			}
 			if(fl & CHFL_VOICE)
 			{
 				*ptr_uid++ = '+';
