@@ -146,8 +146,8 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 		}
 
 		rb_strlcpy(topic, parv[2], BUFSIZE);
-		strip_colour(topic);
-
+		//strip_colour(topic);
+		// Since this isn't ircd-seven anymore, we don't strip topic.
 		rb_sprintf(topic_info, "%s!%s@%s",
 				source_p->name, source_p->username, source_p->host);
 		set_channel_topic(chptr, topic, topic_info, rb_current_time());
