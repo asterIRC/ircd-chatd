@@ -810,14 +810,9 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 
 		for (i = 0; i < 2; i++)
 		{
-			if(*s == '@')
+			if(*s == '!')
 			{
-				fl |= CHFL_CHANOP;
-				s++;
-			}
-			else if(*s == '&')
-			{
-				fl |= CHFL_SUPEROP;
+				fl |= CHFL_BOP;
 				s++;
 			}
 			else if(*s == '~')
@@ -825,9 +820,14 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 				fl |= CHFL_QOP;
 				s++;
 			}
-			else if(*s == '!')
+			else if(*s == '&')
 			{
-				fl |= CHFL_BOP;
+				fl |= CHFL_SUPEROP;
+				s++;
+			}
+			else if(*s == '@')
+			{
+				fl |= CHFL_CHANOP;
 				s++;
 			}
 			else if(*s == '%')
@@ -860,24 +860,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 
 		if(keep_new_modes)
 		{
-			if(fl & CHFL_CHANOP)
-			{
-				*ptr_uid++ = '@';
-				len_nick++;
-				len_uid++;
-			}
-			if(fl & CHFL_SUPEROP)
-			{
-				*ptr_uid++ = '&';
-				len_nick++;
-				len_uid++;
-			}
-			if(fl & CHFL_HALFOP)
-			{
-				*ptr_uid++ = '%';
-				len_nick++;
-				len_uid++;
-			}
 			if(fl & CHFL_BOP)
 			{
 				*ptr_uid++ = '!';
@@ -887,6 +869,24 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 			if(fl & CHFL_QOP)
 			{
 				*ptr_uid++ = '~';
+				len_nick++;
+				len_uid++;
+			}
+			if(fl & CHFL_SUPEROP)
+			{
+				*ptr_uid++ = '&';
+				len_nick++;
+				len_uid++;
+			}
+			if(fl & CHFL_CHANOP)
+			{
+				*ptr_uid++ = '@';
+				len_nick++;
+				len_uid++;
+			}
+			if(fl & CHFL_HALFOP)
+			{
+				*ptr_uid++ = '%';
 				len_nick++;
 				len_uid++;
 			}
