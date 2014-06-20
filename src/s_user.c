@@ -1522,21 +1522,21 @@ change_nick_user_host(struct Client *target_p,	const char *nick, const char *use
 			chptr = mscptr->chptr;
 			mptr = mode;
 
-			if(is_bop(mscptr))
+			if(get_optype(mscptr) & CHFL_BOP)
 			{
 				*mptr++ = 'W';
 				strcat(modeval, nick);
 				strcat(modeval, " ");
 			}
 
-			if(is_qop(mscptr))
+			if(get_optype(mscptr) & CHFL_QOP)
 			{
 				*mptr++ = 'w';
 				strcat(modeval, nick);
 				strcat(modeval, " ");
 			}
 
-			if(is_sop(mscptr))
+			if(get_optype(mscptr) & CHFL_SOP)
 			{
 				*mptr++ = 'a';
 				strcat(modeval, nick);

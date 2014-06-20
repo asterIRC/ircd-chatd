@@ -244,6 +244,7 @@ extern int is_quieted(struct Channel *chptr, struct Client *who,
 		     struct membership *msptr, const char *, const char *);
 extern int can_join(struct Client *source_p, struct Channel *chptr, char *key, const char **forward);
 extern int is_any_op(struct membership *msptr);
+extern int get_optype(struct membership *msptr);
 
 extern struct membership *find_channel_membership(struct Channel *, struct Client *);
 extern const char *find_channel_status(struct membership *msptr, int combine);
