@@ -651,6 +651,9 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 				     source_p->name, chptr->chname, (long) oldts);
 	}
 #endif
+	sendto_realops_snomask(SNO_GENERAL, L_ALL,
+			     "Received SJOIN :%s NJOIN %s :%s",
+			     source_p->name, chptr->chname, parv[parc-1]);
 
 	if(isnew)
 		chptr->channelts = newts;
@@ -808,7 +811,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	{
 		fl = 0;
 
-		for (i = 0; i < 2; i++)
+		for (i = 0; i < 6; i++)
 		{
 			if(*s == '!')
 			{
@@ -850,7 +853,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		/* we assume for these we can fit at least one nick/uid in.. */
 
 		/* check we can fit another status+nick+space into a buffer */
-		if((mlen_uid + len_uid + IDLEN + 3) > (BUFSIZE - 3))
+		if((mlen_uid + len_uid + IDLEN + 7) > (BUFSIZE - 3))
 		{
 			*(ptr_uid - 1) = '\0';
 			sendto_server(client_p->from, NULL, CAP_TS6, NOCAPS, "%s", buf_uid);
