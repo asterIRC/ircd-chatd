@@ -152,7 +152,7 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define CHFL_HALFOP	     	0x0002	/* Channel operator */
 #define CHFL_CHANOP	     	0x0004	/* Channel operator */
 #define CHFL_SUPEROP	     	0x0080	/* Channel operator */
-#define CHFL_SOP	     	0x0100	/* Channel operator */
+#define CHFL_SOP	     	0x0080	/* Channel operator */
 #define CHFL_QOP	     	0x0200	/* Channel operator */
 #define CHFL_BOP	     	0x0400	/* Channel operator */
 
