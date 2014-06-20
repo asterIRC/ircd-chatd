@@ -815,6 +815,26 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 				fl |= CHFL_CHANOP;
 				s++;
 			}
+			else if(*s == '&')
+			{
+				fl |= CHFL_SUPEROP;
+				s++;
+			}
+			else if(*s == '~')
+			{
+				fl |= CHFL_QOP;
+				s++;
+			}
+			else if(*s == '!')
+			{
+				fl |= CHFL_BOP;
+				s++;
+			}
+			else if(*s == '%')
+			{
+				fl |= CHFL_HALFOP;
+				s++;
+			}
 			else if(*s == '+')
 			{
 				fl |= CHFL_VOICE;
