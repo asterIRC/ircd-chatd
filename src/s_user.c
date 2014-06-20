@@ -1522,9 +1522,37 @@ change_nick_user_host(struct Client *target_p,	const char *nick, const char *use
 			chptr = mscptr->chptr;
 			mptr = mode;
 
+			if(is_bop(mscptr))
+			{
+				*mptr++ = 'W';
+				strcat(modeval, nick);
+				strcat(modeval, " ");
+			}
+
+			if(is_qop(mscptr))
+			{
+				*mptr++ = 'w';
+				strcat(modeval, nick);
+				strcat(modeval, " ");
+			}
+
+			if(is_sop(mscptr))
+			{
+				*mptr++ = 'a';
+				strcat(modeval, nick);
+				strcat(modeval, " ");
+			}
+
 			if(is_chanop(mscptr))
 			{
 				*mptr++ = 'o';
+				strcat(modeval, nick);
+				strcat(modeval, " ");
+			}
+
+			if(is_halfop(mscptr))
+			{
+				*mptr++ = 'h';
 				strcat(modeval, nick);
 				strcat(modeval, " ");
 			}

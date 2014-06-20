@@ -203,11 +203,39 @@ find_channel_status(struct membership *msptr, int combine)
 
 	p = buffer;
 
+	if(is_bop(msptr))
+	{
+		if(!combine)
+			return "!";
+		*p++ = '!';
+	}
+
+	if(is_qop(msptr))
+	{
+		if(!combine)
+			return "~";
+		*p++ = '~';
+	}
+
+	if(is_sop(msptr))
+	{
+		if(!combine)
+			return "&";
+		*p++ = '&';
+	}
+
 	if(is_chanop(msptr))
 	{
 		if(!combine)
 			return "@";
 		*p++ = '@';
+	}
+
+	if(is_halfop(msptr))
+	{
+		if(!combine)
+			return "&";
+		*p++ = '%';
 	}
 
 	if(is_voiced(msptr))

@@ -149,19 +149,30 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 /* channel status flags */
 #define CHFL_PEON		0x0000	/* normal member of channel */
 #define CHFL_VOICE      	0x0001	/* the power to speak */
-#define CHFL_CHANOP	     	0x0002	/* Channel operator */
+#define CHFL_HALFOP	     	0x0002	/* Channel operator */
+#define CHFL_CHANOP	     	0x0004	/* Channel operator */
+#define CHFL_SUPEROP	     	0x0080	/* Channel operator */
+#define CHFL_SOP	     	0x0100	/* Channel operator */
+#define CHFL_QOP	     	0x0200	/* Channel operator */
+#define CHFL_BOP	     	0x0400	/* Channel operator */
 
-#define CHFL_BANNED		0x0008  /* cached as banned */
-#define CHFL_QUIETED		0x0010  /* cached as being +q victim */
-#define ONLY_SERVERS		0x0020
-#define ONLY_OPERS		0x0040
+#define CHFL_BANNED		0x000008  /* cached as banned */
+#define CHFL_QUIETED		0x000010  /* cached as being +q victim */
+#define ONLY_SERVERS		0x000020
+#define ONLY_OPERS		0x000040
 #define ALL_MEMBERS		CHFL_PEON
 #define ONLY_CHANOPS		CHFL_CHANOP
 #define ONLY_CHANOPSVOICED	(CHFL_CHANOP|CHFL_VOICE)
 
-#define is_chanop(x)	((x) && (x)->flags & CHFL_CHANOP)
+#define is_halfop(x)	((x) && ((x)->flags & CHFL_HALFOP))
+#define is_chanop(x)	((x) && ((x)->flags & CHFL_CHANOP))
+#define is_superop(x)	((x) && ((x)->flags & CHFL_SUPEROP))
+#define is_sop(x)	((x) && ((x)->flags & CHFL_SUPEROP))
+#define is_qop(x)	((x) && ((x)->flags & CHFL_QOP))
+#define is_botop(x)	((x) && ((x)->flags & CHFL_BOP))
+#define is_bop(x)	((x) && ((x)->flags & CHFL_BOP))
 #define is_voiced(x)	((x) && (x)->flags & CHFL_VOICE)
-#define is_chanop_voiced(x) ((x) && (x)->flags & (CHFL_CHANOP|CHFL_VOICE))
+#define is_chanop_voiced(x) ((x) && (x)->flags & (CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP|CHFL_VOICE))
 #define can_send_banned(x) ((x) && (x)->flags & (CHFL_BANNED|CHFL_QUIETED))
 
 /* channel modes ONLY */
@@ -205,7 +216,7 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define IsMember(who, chan) ((who && who->user && \
                 find_channel_membership(chan, who)) ? 1 : 0)
 
-#define IsChannelName(name) ((name) && (*(name) == '#' || *(name) == '&'))
+#define IsChannelName(name) ((name) && (*(name) == '#' || *(name) == '&' || *(name) == '"' || *(name) == '='))
 
 /* extban function results */
 #define EXTBAN_INVALID -1  /* invalid mask, false even if negated */
@@ -232,6 +243,7 @@ extern int is_banned(struct Channel *chptr, struct Client *who,
 extern int is_quieted(struct Channel *chptr, struct Client *who,
 		     struct membership *msptr, const char *, const char *);
 extern int can_join(struct Client *source_p, struct Channel *chptr, char *key, const char **forward);
+extern int is_any_op(struct membership *msptr);
 
 extern struct membership *find_channel_membership(struct Channel *, struct Client *);
 extern const char *find_channel_status(struct membership *msptr, int combine);
@@ -243,6 +255,7 @@ extern void invalidate_bancache_user(struct Client *);
 extern void free_channel_list(rb_dlink_list *);
 
 extern int check_channel_name(const char *name);
+extern int is_better_op(struct membership *,struct membership *);
 
 extern void channel_member_names(struct Channel *chptr, struct Client *,
 				 int show_eon);

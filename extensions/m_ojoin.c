@@ -65,7 +65,7 @@ mo_ojoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		return 0;
 	}
 
-	if(*parv[1] == '@' || *parv[1] == '%' || *parv[1] == '+')
+	if(*parv[1] != '#')
 	{
 		parv[1]++;
 		move_me = 1;
@@ -117,6 +117,36 @@ mo_ojoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 			      me.id, (long) chptr->channelts, chptr->chname, source_p->id);
 		send_channel_join(chptr, source_p);
 		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +v %s",
+				     me.name, chptr->chname, source_p->name);
+	}
+	else if(*parv[1] == '!')
+	{
+		add_user_to_channel(chptr, source_p, CHFL_BOP);
+		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+			      ":%s SJOIN %ld %s + :!%s",
+			      me.id, (long) chptr->channelts, chptr->chname, source_p->id);
+		send_channel_join(chptr, source_p);
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +W %s",
+				     me.name, chptr->chname, source_p->name);
+	}
+	else if(*parv[1] == '&')
+	{
+		add_user_to_channel(chptr, source_p, CHFL_SOP);
+		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+			      ":%s SJOIN %ld %s + :&%s",
+			      me.id, (long) chptr->channelts, chptr->chname, source_p->id);
+		send_channel_join(chptr, source_p);
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +a %s",
+				     me.name, chptr->chname, source_p->name);
+	}
+	else if(*parv[1] == '~')
+	{
+		add_user_to_channel(chptr, source_p, CHFL_QOP);
+		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+			      ":%s SJOIN %ld %s + :~%s",
+			      me.id, (long) chptr->channelts, chptr->chname, source_p->id);
+		send_channel_join(chptr, source_p);
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +w %s",
 				     me.name, chptr->chname, source_p->name);
 	}
 	else

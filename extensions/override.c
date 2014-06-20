@@ -150,13 +150,13 @@ hack_channel_access(void *vdata)
 {
 	hook_data_channel_approval *data = (hook_data_channel_approval *) vdata;
 
-	if (data->approved == CHFL_CHANOP)
+	if (data->approved == CHFL_QOP)
 		return;
 
 	if (data->client->umodes & user_modes['p'])
 	{
 		update_session_deadline(data->client, NULL);
-		data->approved = CHFL_CHANOP;
+		data->approved = CHFL_QOP;
 
 		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE, "%s is using oper-override on %s (modehacking)",
 				       get_oper_name(data->client), data->chptr->chname);

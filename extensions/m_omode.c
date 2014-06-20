@@ -94,12 +94,6 @@ mo_omode(struct Client *client_p, struct Client *source_p, int parc, const char 
 	msptr = find_channel_membership(chptr, source_p);
 	wasonchannel = msptr != NULL;
 
-	if (is_chanop(msptr))
-	{
-		sendto_one_notice(source_p, ":Use a normal MODE you idiot");
-		return 0;
-	}
-
 	params[0] = '\0';
 	for (i = 2; i < parc; i++)
 	{
@@ -141,14 +135,82 @@ mo_omode(struct Client *client_p, struct Client *source_p, int parc, const char 
 				source_p->id);
 		msptr->flags |= CHFL_CHANOP;
 	}
+	else if (parc == 4 && !strcmp(parv[2], "+a") && !irccmp(parv[3], source_p->name))
+	{
+		/* Opping themselves */
+		if (!wasonchannel)
+		{
+			sendto_one_numeric(source_p, ERR_USERNOTINCHANNEL,
+					   form_str(ERR_USERNOTINCHANNEL), parv[3], chptr->chname);
+			return 0;
+		}
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +a %s",
+				me.name, parv[1], source_p->name);
+		sendto_server(NULL, chptr, CAP_TS6, NOCAPS,
+				":%s TMODE %ld %s +a %s",
+				me.id, (long) chptr->channelts, parv[1],
+				source_p->id);
+		msptr->flags |= CHFL_SOP;
+	}
+	else if (parc == 4 && !strcmp(parv[2], "+w") && !irccmp(parv[3], source_p->name))
+	{
+		/* Opping themselves */
+		if (!wasonchannel)
+		{
+			sendto_one_numeric(source_p, ERR_USERNOTINCHANNEL,
+					   form_str(ERR_USERNOTINCHANNEL), parv[3], chptr->chname);
+			return 0;
+		}
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +w %s",
+				me.name, parv[1], source_p->name);
+		sendto_server(NULL, chptr, CAP_TS6, NOCAPS,
+				":%s TMODE %ld %s +w %s",
+				me.id, (long) chptr->channelts, parv[1],
+				source_p->id);
+		msptr->flags |= CHFL_QOP;
+	}
+	else if (parc == 4 && !strcmp(parv[2], "+W") && !irccmp(parv[3], source_p->name))
+	{
+		/* Opping themselves */
+		if (!wasonchannel)
+		{
+			sendto_one_numeric(source_p, ERR_USERNOTINCHANNEL,
+					   form_str(ERR_USERNOTINCHANNEL), parv[3], chptr->chname);
+			return 0;
+		}
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +W %s",
+				me.name, parv[1], source_p->name);
+		sendto_server(NULL, chptr, CAP_TS6, NOCAPS,
+				":%s TMODE %ld %s +W %s",
+				me.id, (long) chptr->channelts, parv[1],
+				source_p->id);
+		msptr->flags |= CHFL_BOP;
+	}
+	else if (parc == 4 && !strcmp(parv[2], "+h") && !irccmp(parv[3], source_p->name))
+	{
+		/* Opping themselves */
+		if (!wasonchannel)
+		{
+			sendto_one_numeric(source_p, ERR_USERNOTINCHANNEL,
+					   form_str(ERR_USERNOTINCHANNEL), parv[3], chptr->chname);
+			return 0;
+		}
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +h %s",
+				me.name, parv[1], source_p->name);
+		sendto_server(NULL, chptr, CAP_TS6, NOCAPS,
+				":%s TMODE %ld %s +h %s",
+				me.id, (long) chptr->channelts, parv[1],
+				source_p->id);
+		msptr->flags |= CHFL_HALFOP;
+	}
 	else
 	{
 		/* Hack it so set_channel_mode() will accept */
 		if (wasonchannel)
-			msptr->flags |= CHFL_CHANOP;
+			msptr->flags |= CHFL_QOP;
 		else
 		{
-			add_user_to_channel(chptr, source_p, CHFL_CHANOP);
+			add_user_to_channel(chptr, source_p, CHFL_QOP);
 			msptr = find_channel_membership(chptr, source_p);
 		}
 		set_channel_mode(client_p, source_p, chptr, msptr, 
@@ -157,7 +219,7 @@ mo_omode(struct Client *client_p, struct Client *source_p, int parc, const char 
 		 * themselves as set_channel_mode() does not allow that
 		 * -- jilles */
 		if (wasonchannel)
-			msptr->flags &= ~CHFL_CHANOP;
+			msptr->flags &= ~CHFL_QOP;
 		else
 			remove_user_from_channel(msptr);
 	}
