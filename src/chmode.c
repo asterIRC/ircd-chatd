@@ -1081,7 +1081,7 @@ chm_owner(struct Client *source_p, struct Channel *chptr,
         struct Client *targ_p;
         int override = 0;
 
-        if(alevel != CHFL_QOP && alevel != CHFL_BOP)
+        if(!(alevel & (CHFL_QOP|CHFL_BOP)))
         {
                 if(IsOverride(source_p))
                         override = 1;
@@ -1181,7 +1181,7 @@ chm_ownerbot(struct Client *source_p, struct Channel *chptr,
         struct Client *targ_p;
         int override = 0;
 
-        if(alevel & ~(CHFL_QOP|CHFL_BOP))
+        if(!(alevel & (CHFL_QOP|CHFL_BOP)))
         {
                 if(IsOverride(source_p))
                         override = 1;
