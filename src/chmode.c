@@ -268,7 +268,7 @@ allow_mode_change(struct Client *source_p, struct Channel *chptr, int alevel,
 		*errors |= SM_ERR_MLOCK;
 		return ALLOWED_NO;
 	}
-	if(alevel & ~(CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP))
+	if(!(alevel & (CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP)))
 	{
 		if (IsOverride(source_p))
 			return ALLOWED_OVERRIDE;
@@ -879,7 +879,7 @@ chm_ban(struct Client *source_p, struct Channel *chptr,
 
 		/* non-ops cant see +eI lists.. */
 		/* note that this is still permitted if +e/+I are mlocked. */
-		if(alevel & ~(CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP) && mode_type != CHFL_BAN &&
+		if(!(alevel & (CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP)) && mode_type != CHFL_BAN &&
 				mode_type != CHFL_QUIET)
 		{
 			if(IsOverride(source_p))
@@ -1281,7 +1281,7 @@ chm_admin(struct Client *source_p, struct Channel *chptr,
 	struct Client *targ_p;
 	int override = 0;
 
-	if(alevel & ~(CHFL_SUPEROP|CHFL_QOP|CHFL_BOP))
+	if(!(alevel & (CHFL_SUPEROP|CHFL_QOP|CHFL_BOP)))
 	{
 			if(!(*errors & SM_ERR_NOOPS))
 				sendto_one(source_p, ":%s 482 %s %s :You're not a channel administrator", me.name, source_p->name, chptr->chname);
@@ -1378,7 +1378,7 @@ chm_op(struct Client *source_p, struct Channel *chptr,
 	struct Client *targ_p;
 	int override = 0;
 
-	if(alevel & ~(CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP))
+	if(!(alevel & (CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP)))
 	{
 		if(IsOverride(source_p))
 			override = 1;
@@ -2309,7 +2309,7 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 
 	mlen = 0;
 
-	for (override = 0; override < (IsOverride(source_p) && alevel & ~(CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP) ? 2 : 1); ++override)
+	for (override = 0; override < (IsOverride(source_p) && !(alevel & (CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP)) ? 2 : 1); ++override)
 	{
 		int was_on_chan = 0;
 

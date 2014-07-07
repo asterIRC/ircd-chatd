@@ -441,6 +441,30 @@ conf_set_privset_extends(void *data)
 }
 
 static void
+conf_set_qpfx(void *data)
+{
+	ConfigChannel.qprefix = rb_strdup((char *) data);
+}
+
+static void
+conf_set_mpfx(void *data)
+{
+	ConfigChannel.mprefix = rb_strdup((char *) data);
+}
+
+static void
+conf_set_apfx(void *data)
+{
+	ConfigChannel.aprefix = rb_strdup((char *) data);
+}
+
+static void
+conf_set_hpfx(void *data)
+{
+	ConfigChannel.hprefix = rb_strdup((char *) data);
+}
+
+static void
 conf_set_privset_privs(void *data)
 {
 	char *privs = NULL;
@@ -2229,6 +2253,10 @@ static struct ConfEntry conf_channel_table[] =
 	{ "resv_forcepart",     CF_YESNO, NULL, 0, &ConfigChannel.resv_forcepart	},
 	{ "channel_target_change", CF_YESNO, NULL, 0, &ConfigChannel.channel_target_change	},
 	{ "disable_local_channels", CF_YESNO, NULL, 0, &ConfigChannel.disable_local_channels },
+	{ "prefix_owner", CF_QSTRING, conf_set_qpfx, 0, NULL },
+	{ "prefix_master", CF_QSTRING, conf_set_mpfx, 0, NULL },
+	{ "prefix_admin", CF_QSTRING, conf_set_apfx, 0, NULL },
+	{ "prefix_halfop", CF_QSTRING, conf_set_hpfx, 0, NULL },
 	{ "\0", 		0, 	  NULL, 0, NULL }
 };
 

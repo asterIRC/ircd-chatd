@@ -228,9 +228,13 @@ isupport_chanmodes(const void *ptr)
 {
 	static char result[80];
 
-	rb_snprintf(result, sizeof result, "%s%sbq,k,flj,%s",
+	rb_snprintf(result, sizeof result, "%s%sbq%s%s%s%s,k,flj,%s",
 			ConfigChannel.use_except ? "e" : "",
 			ConfigChannel.use_invex ? "I" : "",
+			(!*ConfigChannel.qprefix) ? "W" : "",
+			(!*ConfigChannel.mprefix) ? "w" : "",
+			(!*ConfigChannel.aprefix) ? "a" : "",
+			(!*ConfigChannel.hprefix) ? "h" : "",
 			cflagsbuf);
 	return result;
 }
@@ -287,6 +291,8 @@ isupport_extban(const void *ptr)
 	return result;
 }
 
+char chanprefix[40];
+
 void
 init_isupport(void)
 {
@@ -294,7 +300,6 @@ init_isupport(void)
 	static int nicklen = NICKLEN-1;
 	static int channellen = LOC_CHANNELLEN;
 	static int topiclen = TOPICLEN;
-
 	add_isupport("CHANTYPES", isupport_chantypes, NULL);
 	add_isupport("EXCEPTS", isupport_boolean, &ConfigChannel.use_except);
 	add_isupport("INVEX", isupport_boolean, &ConfigChannel.use_invex);
