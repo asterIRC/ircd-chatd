@@ -121,7 +121,7 @@ resize_pollarray(int fd)
 
 /*
  * void setup_sigio_fd(int fd)
- * 
+ *
  * Input: File descriptor
  * Output: None
  * Side Effect: Sets the FD up for SIGIO
@@ -235,7 +235,7 @@ rb_select_sigio(long delay)
 	PF *hdl;
 	rb_fde_t *F;
 	void *data;
-	struct siginfo si;
+	siginfo_t si;
 
 	struct timespec timeout;
 	if(rb_sigio_supports_event() || delay >= 0)
@@ -412,7 +412,7 @@ rb_sigio_sched_event(struct ev_entry *event, int when)
 	if(can_do_event <= 0)
 		return 0;
 
-	memset(&ev, 0, sizeof(&ev));
+	memset(&ev, 0, sizeof(ev));
 	event->comm_ptr = rb_malloc(sizeof(timer_t));
 	id = event->comm_ptr;
 	ev.sigev_notify = SIGEV_SIGNAL;

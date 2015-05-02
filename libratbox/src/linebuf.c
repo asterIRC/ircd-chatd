@@ -185,7 +185,7 @@ rb_linebuf_donebuf(buf_head_t * bufhead)
  * rb_linebuf_copy_line
  *
  * Okay..this functions comments made absolutely no sense.
- * 
+ *
  * Basically what we do is this.  Find the first chunk of text
  * and then scan for a CRLF.  If we didn't find it, but we didn't
  * overflow our buffer..we wait for some more data.
@@ -224,7 +224,8 @@ rb_linebuf_copy_line(buf_head_t * bufhead, buf_line_t * bufline, char *data, int
 	/* This is the ~overflow case..This doesn't happen often.. */
 	if(cpylen > (BUF_DATA_SIZE - bufline->len - 1))
 	{
-		memcpy(bufch, ch, (BUF_DATA_SIZE - bufline->len - 1));
+		cpylen = BUF_DATA_SIZE - bufline->len - 1;
+		memcpy(bufch, ch, cpylen);
 		bufline->buf[BUF_DATA_SIZE - 1] = '\0';
 		bufch = bufline->buf + BUF_DATA_SIZE - 2;
 		while(cpylen && (*bufch == '\r' || *bufch == '\n'))
@@ -700,8 +701,8 @@ rb_linebuf_flush(rb_fde_t *F, buf_head_t * bufhead)
 	buf_line_t *bufline;
 	int retval;
 
-/* 
- * autoconf checks for this..but really just want to use it if we have a 
+/*
+ * autoconf checks for this..but really just want to use it if we have a
  * native version even if libircd provides a fake version...
  */
 #ifdef HAVE_WRITEV

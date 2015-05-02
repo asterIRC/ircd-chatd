@@ -164,6 +164,7 @@ rb_lib_restart(const char *format, ...)
 	rb_vsnprintf(errbuf, sizeof(errbuf), format, args);
 	va_end(args);
 	rb_restart(errbuf);
+	abort();
 }
 
 void
@@ -414,6 +415,7 @@ rb_base64_decode(const unsigned char *str, int length, int *ret)
 			return NULL;
 		case 2:
 			k++;
+			/* FALLTHROUGH */
 		case 3:
 			result[k++] = 0;
 		}

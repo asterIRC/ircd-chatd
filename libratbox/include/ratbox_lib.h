@@ -14,6 +14,10 @@
 #include <signal.h>
 #include <ctype.h>
 
+#ifdef HAVE_LINUX_TCP_H
+# include <linux/tcp.h>
+#endif
+
 #ifdef __GNUC__
 #undef alloca
 #define alloca __builtin_alloca
@@ -71,8 +75,8 @@ char *alloca();
 #ifdef _WIN32
 #include <process.h>
 
-#ifndef MAXPATHLEN
-#define MAXPATHLEN 128
+#ifndef PATH_MAX
+#define PATH_MAX 128
 #endif
 
 #ifdef strerror

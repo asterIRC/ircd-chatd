@@ -54,7 +54,7 @@ static rb_dlink_list event_list;
 static time_t event_time_min = -1;
 
 /*
- * struct ev_entry * 
+ * struct ev_entry *
  * rb_event_find(EVH *func, void *arg)
  *
  * Input: Event function and the argument passed to it
@@ -77,7 +77,7 @@ rb_event_find(EVH * func, void *arg)
 }
 
 /*
- * struct ev_entry * 
+ * struct ev_entry *
  * rb_event_add(const char *name, EVH *func, void *arg, time_t when)
  *
  * Input: Name of event, function to call, arguments to pass, and frequency
@@ -88,6 +88,11 @@ rb_event_find(EVH * func, void *arg)
 struct ev_entry *
 rb_event_add(const char *name, EVH * func, void *arg, time_t when)
 {
+	if (rb_unlikely(when <= 0)) {
+		rb_lib_log("rb_event_add: tried to schedule %s event with a delay of "
+			"%d seconds", name, (int) when);
+		when = 1;
+	}
 	struct ev_entry *ev;
 	ev = rb_malloc(sizeof(struct ev_entry));
 	ev->func = func;
@@ -109,6 +114,11 @@ rb_event_add(const char *name, EVH * func, void *arg, time_t when)
 struct ev_entry *
 rb_event_addonce(const char *name, EVH * func, void *arg, time_t when)
 {
+	if (rb_unlikely(when <= 0)) {
+		rb_lib_log("rb_event_addonce: tried to schedule %s event to run in "
+			"%d seconds", name, (int) when);
+		when = 1;
+	}
 	struct ev_entry *ev;
 	ev = rb_malloc(sizeof(struct ev_entry));
 	ev->func = func;
@@ -158,7 +168,7 @@ rb_event_find_delete(EVH * func, void *arg)
 	rb_event_delete(rb_event_find(func, arg));
 }
 
-/* 
+/*
  * struct ev_entry *
  * rb_event_addish(const char *name, EVH *func, void *arg, time_t delta_isa)
  *
@@ -191,9 +201,7 @@ rb_run_event(struct ev_entry *ev)
 	ev->func(ev->arg);
 	if(!ev->frequency)
 	{
-		rb_io_unsched_event(ev);
-		rb_dlinkDelete(&ev->node, &event_list);
-		rb_free(ev);
+		rb_event_delete(ev);
 		return;
 	}
 	ev->when = rb_current_time() + ev->frequency;
@@ -268,7 +276,7 @@ rb_event_io_register_all(void)
  *
  * Input: None
  * Output: None
- * Side Effects: Initializes the event system. 
+ * Side Effects: Initializes the event system.
  */
 void
 rb_event_init(void)
@@ -300,7 +308,7 @@ rb_dump_events(void (*func) (char *, void *), void *ptr)
 	}
 }
 
-/* 
+/*
  * void rb_set_back_events(time_t by)
  * Input: Time to set back events by.
  * Output: None.

@@ -196,9 +196,9 @@ find_channel_membership(struct Channel *chptr, struct Client *client_p)
  * side effects -
  */
 const char *
-find_channel_status(struct membership *msptr, int combine)
+find_channel_status_server(struct membership *msptr, int combine)
 {
-	static char buffer[3];
+	static char buffer[11];
 	char *p;
 
 	p = buffer;
@@ -234,8 +234,66 @@ find_channel_status(struct membership *msptr, int combine)
 	if(is_halfop(msptr))
 	{
 		if(!combine)
-			return "&";
+			return "%";
 		*p++ = '%';
+	}
+
+	if(is_voiced(msptr))
+		*p++ = '+';
+
+	*p = '\0';
+	return buffer;
+}
+
+const char *
+find_channel_status(struct membership *msptr, int combine)
+{
+	static char buffer[11];
+	char *p;
+
+	p = buffer;
+
+	if(is_bop(msptr))
+	{
+		if(!EmptyString(ConfigChannel.qprefix)) {
+			if(!combine)
+				return ConfigChannel.qprefix;
+			*p++ = ConfigChannel.qprefix[0];
+		}
+	}
+
+	if(is_qop(msptr))
+	{
+		if(!EmptyString(ConfigChannel.mprefix)) {
+			if(!combine)
+				return ConfigChannel.mprefix;
+			*p++ = ConfigChannel.mprefix[0];
+		}
+	}
+
+	if(is_sop(msptr))
+	{
+		if(!EmptyString(ConfigChannel.aprefix)) {
+			if(!combine)
+				return ConfigChannel.aprefix;
+			*p++ = ConfigChannel.mprefix[0];
+		}
+	}
+
+	if(is_chanop(msptr))
+	{
+		if(!combine)
+			return "@";
+		*p++ = '@';
+	}
+
+	if(is_halfop(msptr))
+	{
+		if(!EmptyString(ConfigChannel.hprefix)) {
+			if(!combine)
+				return ConfigChannel.hprefix;
+			*p++ = ConfigChannel.hprefix[0];
+		}
 	}
 
 	if(is_voiced(msptr))

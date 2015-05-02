@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
@@ -33,6 +33,7 @@
 #include <openssl/ssl.h>
 #include <openssl/dh.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/rand.h>
 
 static SSL_CTX *ssl_server_ctx;
@@ -312,8 +313,30 @@ rb_init_ssl(void)
 		ret = 0;
 	}
 	/* Disable SSLv2, make the client use our settings */
-	SSL_CTX_set_options(ssl_server_ctx, SSL_OP_NO_SSLv2 | SSL_OP_CIPHER_SERVER_PREFERENCE);
+	SSL_CTX_set_options(ssl_server_ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_CIPHER_SERVER_PREFERENCE
+#ifdef SSL_OP_SINGLE_DH_USE
+			| SSL_OP_SINGLE_DH_USE
+#endif
+#ifdef SSL_OP_NO_TICKET
+			| SSL_OP_NO_TICKET
+#endif
+			);
 	SSL_CTX_set_verify(ssl_server_ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, verify_accept_all_cb);
+	SSL_CTX_set_session_cache_mode(ssl_server_ctx, SSL_SESS_CACHE_OFF);
+	SSL_CTX_set_cipher_list(ssl_server_ctx, "kEECDH+HIGH:kEDH+HIGH:HIGH:!RC4:!aNULL");
+
+	/* Set ECDHE on OpenSSL 1.00+, but make sure it's actually available because redhat are dicks
+	   and bastardise their OpenSSL for stupid reasons... */
+	#if (OPENSSL_VERSION_NUMBER >= 0x10000000) && defined(NID_secp384r1)
+		EC_KEY *key = EC_KEY_new_by_curve_name(NID_secp384r1);
+		if (key) {
+			SSL_CTX_set_tmp_ecdh(ssl_server_ctx, key);
+			EC_KEY_free(key);
+		}
+#ifdef SSL_OP_SINGLE_ECDH_USE
+		SSL_CTX_set_options(ssl_server_ctx, SSL_OP_SINGLE_ECDH_USE);
+#endif
+	#endif
 
 	ssl_client_ctx = SSL_CTX_new(TLSv1_client_method());
 
@@ -323,6 +346,11 @@ rb_init_ssl(void)
 			   get_ssl_error(ERR_get_error()));
 		ret = 0;
 	}
+
+#ifdef SSL_OP_NO_TICKET
+	SSL_CTX_set_options(ssl_client_ctx, SSL_OP_NO_TICKET);
+#endif
+
 	return ret;
 }
 
@@ -390,10 +418,14 @@ rb_setup_ssl_server(const char *cert, const char *keyfile, const char *dhfile)
 }
 
 int
-rb_ssl_listen(rb_fde_t *F, int backlog)
+rb_ssl_listen(rb_fde_t *F, int backlog, int defer_accept)
 {
+	int result;
+
+	result = rb_listen(F, backlog, defer_accept);
 	F->type = RB_FD_SOCKET | RB_FD_LISTEN | RB_FD_SSL;
-	return listen(F->fd, backlog);
+
+	return result;
 }
 
 struct ssl_connect
@@ -572,10 +604,6 @@ rb_init_prng(const char *path, prng_seed_t seed_type)
 
 	switch (seed_type)
 	{
-	case RB_PRNG_EGD:
-		if(RAND_egd(path) == -1)
-			return -1;
-		break;
 	case RB_PRNG_FILE:
 		if(RAND_load_file(path, -1) == -1)
 			return -1;
@@ -634,12 +662,16 @@ rb_get_ssl_certfp(rb_fde_t *F, uint8_t certfp[RB_SSL_CERTFP_LEN])
 	if(cert != NULL)
 	{
 		res = SSL_get_verify_result((SSL *) F->ssl);
-		if(res == X509_V_OK ||
-				res == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN ||
-				res == X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE ||
-				res == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT)
+		if(
+			res == X509_V_OK ||
+			res == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN ||
+			res == X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE ||
+			res == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT ||
+			res == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY)
 		{
-			memcpy(certfp, cert->sha1_hash, RB_SSL_CERTFP_LEN);
+			unsigned int certfp_length = RB_SSL_CERTFP_LEN;
+			X509_digest(cert, EVP_sha1(), certfp, &certfp_length);
+			X509_free(cert);
 			return 1;
 		}
 		X509_free(cert);
@@ -657,8 +689,9 @@ rb_supports_ssl(void)
 void
 rb_get_ssl_info(char *buf, size_t len)
 {
-	rb_snprintf(buf, len, "Using SSL: %s compiled: 0x%lx, library 0x%lx", 
-		    SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER, SSLeay());
+	rb_snprintf(buf, len, "Using SSL: %s compiled: 0x%lx, library 0x%lx",
+		    SSLeay_version(SSLEAY_VERSION),
+		    (long)OPENSSL_VERSION_NUMBER, SSLeay());
 }
 
 

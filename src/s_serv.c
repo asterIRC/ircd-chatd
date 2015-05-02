@@ -651,7 +651,7 @@ burst_TS6(struct Client *client_p)
 				t = buf + mlen;
 			}
 
-			rb_sprintf(t, "%s%s ", find_channel_status(msptr, 1), 
+			rb_sprintf(t, "%s%s ", find_channel_status_server(msptr, 1), 
 				   use_id(msptr->client_p));
 
 			cur_len += tlen;

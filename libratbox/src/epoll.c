@@ -254,6 +254,7 @@ rb_epoll_supports_event(void)
 	/* try to detect at runtime if everything we need actually works */
 	timer_t timer;
 	struct sigevent ev;
+	struct stat st;
 	int fd;
 	sigset_t set;
 
@@ -261,6 +262,13 @@ rb_epoll_supports_event(void)
 		return 1;
 	if(can_do_event == -1)
 		return 0;
+
+	/* Check for openvz..it has a broken timerfd.. */
+	if(stat("/proc/user_beancounters", &st) == 0)
+	{
+		can_do_event = -1;
+		return 0;
+	}
 
 #ifdef USE_TIMERFD_CREATE
 	if((fd = timerfd_create(CLOCK_REALTIME, 0)) >= 0)
@@ -397,7 +405,7 @@ rb_epoll_sched_event_signalfd(struct ev_entry *event, int when)
 	struct sigevent ev;
 	struct itimerspec ts;
 
-	memset(&ev, 0, sizeof(&ev));
+	memset(&ev, 0, sizeof(ev));
 	event->comm_ptr = rb_malloc(sizeof(timer_t));
 	id = event->comm_ptr;
 	ev.sigev_notify = SIGEV_SIGNAL;

@@ -1,7 +1,7 @@
 /*
  *  ircd-ratbox: A slightly useful ircd
  *  helper.c: Starts and deals with ircd helpers
- *  
+ *
  *  Copyright (C) 2006 Aaron Sethman <androsyn@ratbox.org>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -198,7 +198,7 @@ rb_helper_write_sendq(rb_fde_t *F, void *helper_ptr)
 	if(rb_linebuf_len(&helper->sendq) > 0)
 	{
 		while((retlen = rb_linebuf_flush(F, &helper->sendq)) > 0)
-			;;
+			;
 		if(retlen == 0 || (retlen < 0 && !rb_ignore_errno(errno)))
 		{
 			rb_helper_restart(helper);

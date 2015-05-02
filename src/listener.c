@@ -231,7 +231,7 @@ inetport(struct Listener *listener)
 		return 0;
 	}
 
-	if(rb_listen(F, RATBOX_SOMAXCONN))
+	if(rb_listen(F, RATBOX_SOMAXCONN, 0))
 	{
 		ilog_error("listen()");
 		rb_close(F);

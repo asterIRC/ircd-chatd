@@ -36,3 +36,6 @@ tools/viconf
 bandb/bandb
 bandb/bantool
 run/
+libltdl/
+ltmain.sh
+

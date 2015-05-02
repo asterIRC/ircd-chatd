@@ -231,10 +231,10 @@ isupport_chanmodes(const void *ptr)
 	rb_snprintf(result, sizeof result, "%s%sbq%s%s%s%s,k,flj,%s",
 			ConfigChannel.use_except ? "e" : "",
 			ConfigChannel.use_invex ? "I" : "",
-			(!*ConfigChannel.qprefix) ? "W" : "",
-			(!*ConfigChannel.mprefix) ? "w" : "",
-			(!*ConfigChannel.aprefix) ? "a" : "",
-			(!*ConfigChannel.hprefix) ? "h" : "",
+			(EmptyString(ConfigChannel.qprefix)) ? "W" : "",
+			(EmptyString(ConfigChannel.mprefix)) ? "w" : "",
+			(EmptyString(ConfigChannel.aprefix)) ? "a" : "",
+			(EmptyString(ConfigChannel.hprefix)) ? "h" : "",
 			cflagsbuf);
 	return result;
 }
@@ -291,6 +291,24 @@ isupport_extban(const void *ptr)
 	return result;
 }
 
+static const char *
+isupport_chanprefix(const void *ptr)
+{
+	static char result[40];
+
+	rb_snprintf(result, sizeof result, "(%s%s%so%sv)%s%s%s@%s+",
+		(!EmptyString(ConfigChannel.qprefix)) ? "W" : "",
+		(!EmptyString(ConfigChannel.mprefix)) ? "w" : "",
+		(!EmptyString(ConfigChannel.aprefix)) ? "a" : "",
+		(!EmptyString(ConfigChannel.hprefix)) ? "h" : "",
+		(!EmptyString(ConfigChannel.qprefix)) ? ConfigChannel.qprefix : "",
+		(!EmptyString(ConfigChannel.mprefix)) ? ConfigChannel.mprefix : "",
+		(!EmptyString(ConfigChannel.aprefix)) ? ConfigChannel.aprefix : "",
+		(!EmptyString(ConfigChannel.hprefix)) ? ConfigChannel.hprefix : ""
+		);
+	return result;
+}
+
 char chanprefix[40];
 
 void
@@ -305,7 +323,7 @@ init_isupport(void)
 	add_isupport("INVEX", isupport_boolean, &ConfigChannel.use_invex);
 	add_isupport("CHANMODES", isupport_chanmodes, NULL);
 	add_isupport("CHANLIMIT", isupport_chanlimit, NULL);
-	add_isupport("PREFIX", isupport_string, "(Wwaohv)!~&@%+");
+	add_isupport("PREFIX", isupport_chanprefix, NULL);
 	add_isupport("MAXLIST", isupport_maxlist, NULL);
 	add_isupport("MODES", isupport_intptr, &maxmodes);
 	add_isupport("NETWORK", isupport_stringptr, &ServerInfo.network_name);

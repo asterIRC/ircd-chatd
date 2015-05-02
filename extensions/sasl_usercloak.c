@@ -68,7 +68,7 @@ check_new_user(void *vdata)
 			return;
 		}
 
-		//char c = ToLower(*src);
+		char c = *src;
 
 		if (IsHostChar(c))
 			*dst++ = c;
