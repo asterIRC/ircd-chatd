@@ -54,6 +54,7 @@
 #include "msg.h"
 #include "reject.h"
 #include "sslproc.h"
+#include "irc_dictionary.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE ((unsigned int) 0xffffffff)
@@ -545,6 +546,8 @@ burst_TS6(struct Client *client_p)
 	rb_dlink_node *ptr;
 	rb_dlink_node *uptr;
 	char *t;
+	struct Metadata *md;
+	struct DictionaryIter iter;
 	int tlen, mlen;
 	int cur_len = 0;
 
@@ -596,6 +599,12 @@ burst_TS6(struct Client *client_p)
 			if(!EmptyString(target_p->user->suser))
 				sendto_one(client_p, ":%s ENCAP * LOGIN %s",
 						use_id(target_p), target_p->user->suser);
+		}
+
+		DICTIONARY_FOREACH(md, &iter, target_p->metadata)
+		{
+			sendto_one(client_p, ":%s ENCAP * METADATA ADD %s %s :%s",
+				   use_id(&me), use_id(target_p), md->name, md->value);
 		}
 
 		if(ConfigFileEntry.burst_away && !EmptyString(target_p->user->away))
@@ -664,6 +673,13 @@ burst_TS6(struct Client *client_p)
 			*(t-1) = '\0';
 		}
 		sendto_one(client_p, "%s", buf);
+
+		DICTIONARY_FOREACH(md, &iter, chptr->metadata)
+		{
+			/* taken from pitircd -- janicez */
+			sendto_one(client_p, ":%s ENCAP * METADATA ADD %s %s :%s",
+				   use_id(&me), chptr->chname, md->name, md->value);
+		}
 
 		if(rb_dlink_list_length(&chptr->banlist) > 0)
 			burst_modes_TS6(client_p, chptr, &chptr->banlist, 'b');
@@ -801,7 +817,7 @@ server_estab(struct Client *client_p)
 		sendto_one(client_p, "SERVER %s 1 :%s%s",
 			   me.name,
 			   ConfigServerHide.hidden ? "(H) " : "",
-			   (me.info[0]) ? (me.info) : "IRCers United");
+			   (me.info[0]) ? (me.info) : "if you see this, tell an admin to change his/her server's gecos.");
 	}
 
 	if(!rb_set_buffers(client_p->localClient->F, READBUF_SIZE))

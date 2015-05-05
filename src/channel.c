@@ -41,6 +41,7 @@
 #include "s_conf.h"		/* ConfigFileEntry, ConfigChannel */
 #include "s_newconf.h"
 #include "logger.h"
+#include "irc_dictionary.h"
 
 struct config_channel_entry ConfigChannel;
 rb_dlink_list global_channel_list;
@@ -93,12 +94,16 @@ allocate_channel(const char *chname)
 	struct Channel *chptr;
 	chptr = rb_bh_alloc(channel_heap);
 	chptr->chname = rb_strdup(chname);
+	struct Dictionary *metadata;
+	metadata = irc_dictionary_create(irccmp);
+	chptr->metadata = metadata;
 	return (chptr);
 }
 
 void
 free_channel(struct Channel *chptr)
 {
+	channel_metadata_clear(chptr);
 	rb_free(chptr->chname);
 	rb_free(chptr->mode_lock);
 	rb_bh_free(channel_heap, chptr);
@@ -276,7 +281,7 @@ find_channel_status(struct membership *msptr, int combine)
 		if(!EmptyString(ConfigChannel.aprefix)) {
 			if(!combine)
 				return ConfigChannel.aprefix;
-			*p++ = ConfigChannel.mprefix[0];
+			*p++ = ConfigChannel.aprefix[0];
 		}
 	}
 
@@ -1603,5 +1608,125 @@ resv_chan_forcepart(const char *name, const char *reason, int temp_time)
 				sendto_one_notice(target_p, ":*** Channel %s is no longer available on this server.",
 				           name);
 		}
+	}
+}
+
+
+/*
+ * channel_metadata_add
+ * 
+ * inputs	- pointer to channel struct
+ *		- name of metadata item you wish to add
+ *		- value of metadata item
+ *		- 1 if metadata should be propegated, 0 if not
+ * output	- none
+ * side effects - metadata is added to the channel in question
+ *		- metadata is propegated if propegate is set.
+ */
+struct Metadata *
+channel_metadata_add(struct Channel *target, const char *name, const char *value, int propegate)
+{
+	struct Metadata *md;
+
+	md = rb_malloc(sizeof(struct Metadata));
+	md->name = rb_strdup(name);
+	md->value = rb_strdup(value);
+
+	irc_dictionary_add(target->metadata, md->name, md);
+	
+	if(propegate)
+		sendto_match_servs(&me, "*", CAP_ENCAP, NOCAPS, "ENCAP * METADATA ADD %s %s :%s",
+				target->chname, name, value);
+
+	return md;
+}
+
+/*
+ * channel_metadata_time_add
+ * 
+ * inputs	- pointer to channel struct
+ *		- name of metadata item you wish to add
+ *		- time_t you wish to add
+ *		- value you wish to add
+ * output	- none
+ * side effects - metadata is added to the channel in question
+ */
+struct Metadata *
+channel_metadata_time_add(struct Channel *target, const char *name, time_t timevalue, const char *value)
+{
+	struct Metadata *md;
+
+	md = rb_malloc(sizeof(struct Metadata));
+	md->name = rb_strdup(name);
+	md->value = rb_strdup(value);
+	md->timevalue = timevalue;
+
+	irc_dictionary_add(target->metadata, md->name, md);
+
+	return md;
+}
+
+/*
+ * channel_metadata_delete
+ * 
+ * inputs	- pointer to channel struct
+ *		- name of metadata item you wish to delete
+ * output	- none
+ * side effects - metadata is deleted from the channel in question
+ * 		- deletion is propegated if propegate is set
+ */
+void
+channel_metadata_delete(struct Channel *target, const char *name, int propegate)
+{
+	struct Metadata *md = channel_metadata_find(target, name);
+
+	if(!md)
+		return;
+
+	irc_dictionary_delete(target->metadata, md->name);
+
+	rb_free(md);
+
+	if(propegate)
+		sendto_match_servs(&me, "*", CAP_ENCAP, NOCAPS, "ENCAP * METADATA DELETE %s %s",
+				target->chname, name);
+}
+
+/*
+ * channel_metadata_find
+ * 
+ * inputs	- pointer to channel struct
+ *		- name of metadata item you wish to read
+ * output	- the requested metadata, if it exists, elsewise null.
+ * side effects - 
+ */
+struct Metadata *
+channel_metadata_find(struct Channel *target, const char *name)
+{
+	if(!target)
+		return NULL;
+
+	if(!target->metadata)
+		return NULL;
+
+	return irc_dictionary_retrieve(target->metadata, name);
+}
+
+/*
+ * channel_metadata_clear
+ * 
+ * inputs	- pointer to channel struct
+ * output	- none
+ * side effects - metadata is cleared from the channel in question
+ */
+void
+channel_metadata_clear(struct Channel *chptr)
+{
+	struct Metadata *md;
+	struct DictionaryIter iter;
+	
+	DICTIONARY_FOREACH(md, &iter, chptr->metadata)
+	{
+		channel_metadata_delete(chptr, md->name, 0);
 	}
 }

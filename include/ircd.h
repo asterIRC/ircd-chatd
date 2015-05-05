@@ -49,6 +49,13 @@ struct SetOptions
 	char helperstring[REALLEN];
 };
 
+struct Metadata
+{
+	const char *name;
+	const char *value;
+	time_t timevalue;
+};
+
 struct Counter
 {
 	int oper;		/* Opers */

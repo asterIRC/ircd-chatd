@@ -170,6 +170,8 @@ struct Client
 
 	time_t large_ctcp_sent; /* ctcp to large group sent, relax flood checks */
 	char *certfp; /* client certificate fingerprint */
+
+	struct Dictionary *metadata;
 };
 
 struct LocalUser
@@ -636,5 +638,10 @@ extern char *generate_uid(void);
 
 void allocate_away(struct Client *);
 void free_away(struct Client *);
+
+extern struct Metadata *user_metadata_add(struct Client *target, const char *name, const char *value, int propegate);
+extern void user_metadata_delete(struct Client *target, const char *name, int propegate);
+extern struct Metadata *user_metadata_find(struct Client *target, const char *name);
+extern void user_metadata_clear(struct Client *target);
 
 #endif /* INCLUDED_client_h */

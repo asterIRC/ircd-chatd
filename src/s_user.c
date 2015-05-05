@@ -54,6 +54,7 @@
 #include "blacklist.h"
 #include "substitution.h"
 #include "chmode.h"
+#include "irc_dictionary.h"
 
 static void report_and_set_user_flags(struct Client *, struct ConfItem *);
 void user_welcome(struct Client *source_p);
@@ -653,6 +654,15 @@ introduce_client(struct Client *client_p, struct Client *source_p, struct User *
 	{
 		sendto_server(client_p, NULL, CAP_TS6, use_euid ? CAP_EUID : NOCAPS, ":%s ENCAP * LOGIN %s",
 				use_id(source_p), source_p->user->suser);
+	}
+
+	struct Metadata *md;
+	struct DictionaryIter iter;
+
+	DICTIONARY_FOREACH(md, &iter, source_p->metadata)
+	{
+		sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s ENCAP * METADATA ADD %s %s :%s",
+			   use_id(&me), use_id(source_p), md->name, md->value);
 	}
 
 	if(MyConnect(source_p) && source_p->localClient->passwd)

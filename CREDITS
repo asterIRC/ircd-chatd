@@ -88,3 +88,82 @@ w00t, Robin Burchell <surreal.w00t -at- gmail.com>
 Visit the syntaxtIRCd repo at: https://github.com/SyntaxIRCd/CustomIRCd
 Visit us on IRC at: irc.foxatomic.net #syntaxIRCd
 
+Some features from fIRCd were ported to ircd-chatd.
+fIRCd's credit file is listed below.
+
+$Id: CREDITS 3133 2007-01-21 15:38:16Z jilles $
+ 
+FIRCd is a fork of the elemental-ircd project created to meet
+GeeksIRC's needs and keep the now-defunct ShadowIRCD project's goals
+alive with features used in modern IRCd's.
+ 
+The FIRCd team is listed in nick-alphabetical order:
+ 
+Blindsight, Matthew Ullman <matt -at- fircd.org>
+knivey, Fred Akers <knivey -at- botops.net>
+
+-----
+
+elemental-ircd is a fork of the ShadowIRCD project created to meet
+PonyChat's needs and keep the now-defunct ShadowIRCD project's goals
+alive.
+ 
+The elemental-ircd team is listed in nick-alphabetical order:
+ 
+aji, Alex Iadicico <alex -at- ajitek.net>
+lyska, Sam Dodrill <shadowh511 -at- gmail.com>>
+Kabaka, Kyle Johnson <kabaka -at- ponychat.net>
+ 
+-----
+
+ShadowIRCd 6 is a modern restart of the old ShadowIRCd project
+based on Charybdis with a few additional features to make it appeal 
+more to more users. We try to work as closely as possible with the 
+Charybdis team.
+ 
+The ShadowIRCd team is listed in nick-alphabetical order:
+ 
+jdhore, JD Horelick <jdhore1 -at- gmail.com>
+Taros, Brett Greenham <taros34 -at- hotmail.com>
+ 
+Some ShadowIRCd 6 features such as the oper-override and remote
+RESTART, DIE and MOD* commands were borrowed from ircd-seven.
+
+-----
+
+ircd-seven is written by:
+ 
+spb, Stephen Bennett <spb -at- attenuate.org>
+ 
+----- 
+ 
+Charybdis started as an evolution from ircd-ratbox. Its development
+is led by a team of dedicated developers who have put a lot of time
+into the project, and it has seen use on a variety of different
+network configurations.
+ 
+The charybdis core team is listed in nick-alphabetical order:
+ 
+jilles, Jilles Tjoelker <jilles -at- stack.nl>
+nenolod, William Pitcock <nenolod -at- nenolod.net>
+spb, Stephen Bennett <spb -at- attenuate.org>
+ 
+The following people have made contributions to the Charybdis releases,
+in nick-alphabetical order:
+ 
+AndroSyn, Aaron Sethman <androsyn -at- ratbox.org>
+anfl, Lee Hardy <lee -at- leeh.co.uk>
+beu, Elfyn McBratney <elfyn.mcbratney -at- gmail.com>
+dwr, Valery Yatsko <dwr -at- shadowircd.net> 
+Entrope, Michael Poole <mdpoole -at- trolius.org> 
+gxti, Michael Tharp <gxti -at- partiallystapled.com>
+jdhore, JD Horelick <jdhore1 -at- gmail.com>
+mr_flea, Keith Buck <mr_flea -at- esper.net>
+Taros, Brett Greenham <taros -at- shadowircd.net>
+ThaPrince, Jon Christopherson <jon -at- vile.com>
+twincest, River Tarnell <river -at- attenuate.org>
+w00t, Robin Burchell <surreal.w00t -at- gmail.com>
+ 
+Visit the FIRCd repo at: http://www.bitbucket.com/mullman/fircd
+Visit us on IRC at: irc.geeksirc.net #fircd
+

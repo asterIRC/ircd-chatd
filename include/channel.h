@@ -73,10 +73,13 @@ rb_dlink_list invites;
 	unsigned int join_count;  /* joins within delta */
 	unsigned int join_delta;  /* last ts of join */
 
+	struct Dictionary *metadata;
+
 	unsigned long bants;
 	time_t channelts;
 	char *chname;
 };
+
 
 struct membership
 {
@@ -305,5 +308,12 @@ const char * get_extban_string(void);
 extern int get_channel_access(struct Client *source_p, struct membership *msptr);
 
 extern void send_channel_join(struct Channel *chptr, struct Client *client_p);
+
+extern struct Metadata *channel_metadata_add(struct Channel *target, const char *name, const char *value, int propegate);
+extern struct Metadata *channel_metadata_time_add(struct Channel *target, const char *name, time_t timevalue, const char *value);
+extern void channel_metadata_delete(struct Channel *target, const char *name, int propegate);
+extern struct Metadata *channel_metadata_find(struct Channel *target, const char *name);
+extern void channel_metadata_clear(struct Channel *target);
+
 
 #endif /* INCLUDED_channel_h */
