@@ -532,7 +532,7 @@ msg_channel(int p_or_n, const char *command,
 	if(chptr->mode.mode & MODE_NONOTICE)
 	{
 		if(p_or_n == NOTICE) {
-			sendto_one(source_p, form_str(ERR_CANNOTSENDTOCHAN), me.name, source_p->name);
+			sendto_one_numeric(source_p, ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (+T is set)", chptr->chname);
 			return;
 		}
 	}
