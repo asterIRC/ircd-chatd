@@ -331,9 +331,17 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		for(;;)
 		{
 			if(*nick == '@')
-				type |= CHFL_CHANOP;
+				type |= CHFL_BOP | CHFL_QOP | CHFL_SOP | CHFL_CHANOP;
+			else if(*nick == '*')
+				type |= CHFL_BOP;
+			else if(*nick == '%')
+				type |= CHFL_BOP | CHFL_QOP | CHFL_SOP | CHFL_CHANOP | CHFL_HALFOP;
+			else if(*nick == '!')
+				type |= CHFL_BOP | CHFL_QOP | CHFL_SOP;
+			else if(*nick == '~')
+				type |= CHFL_BOP | CHFL_QOP;
 			else if(*nick == '+')
-				type |= CHFL_CHANOP | CHFL_VOICE;
+				type |= CHFL_BOP | CHFL_QOP | CHFL_SOP | CHFL_CHANOP | CHFL_HALFOP | CHFL_VOICE;
 			else
 				break;
 			nick++;
@@ -517,6 +525,14 @@ msg_channel(int p_or_n, const char *command,
 			 * that would cause problems later */
 			if(p_or_n != NOTICE)
 				sendto_one(source_p, form_str(ERR_NOTEXTTOSEND), me.name, source_p->name);
+			return;
+		}
+	}
+
+	if(chptr->mode.mode & MODE_NONOTICE)
+	{
+		if(p_or_n == NOTICE) {
+			sendto_one(source_p, form_str(ERR_CANNOTSENDTOCHAN), me.name, source_p->name);
 			return;
 		}
 	}
@@ -851,7 +867,7 @@ msg_client(int p_or_n, const char *command,
 					add_reply_target(target_p, source_p);
 					sendto_one(target_p, form_str(RPL_UMODEGMSG),
 						   me.name, target_p->name, source_p->name,
-						   source_p->username, source_p->host);
+						   source_p->username, source_p->host, source_p->name);
 
 					target_p->localClient->last_caller_id_time = rb_current_time();
 				}

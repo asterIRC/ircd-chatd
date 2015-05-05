@@ -707,7 +707,7 @@ conf_set_oper_rsa_public_key_file(void *data)
 	rb_free(yy_oper->rsa_pubkey_file);
 	yy_oper->rsa_pubkey_file = rb_strdup((char *) data);
 #else
-	conf_report_error("Warning -- ignoring rsa_public_key_file (OpenSSL support not available");
+	conf_report_error("Warning -- ignoring rsa_public_key_file (OpenSSL support not available)");
 #endif
 }
 
@@ -2160,6 +2160,7 @@ static struct ConfEntry conf_general_table[] =
 
 	{ "default_operstring",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_operstring },
 	{ "default_adminstring",CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_adminstring },
+	{ "default_netadminstring",CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_netadminstring },
 	{ "servicestring",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.servicestring },
 	{ "egdpool_path",	CF_QSTRING, NULL, MAXPATHLEN, &ConfigFileEntry.egdpool_path },
 	{ "kline_reason",	CF_QSTRING, NULL, REALLEN, &ConfigFileEntry.kline_reason },

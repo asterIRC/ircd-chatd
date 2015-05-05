@@ -583,9 +583,9 @@ sendto_channel_opmod(struct Client *one, struct Client *source_p,
 			       use_id(source_p), command, chptr->chname, text);
 	else
 		rb_linebuf_putmsg(&rb_linebuf_old, NULL, NULL,
-			       ":%s NOTICE @%s :<%s:%s> %s",
-			       use_id(source_p->servptr), chptr->chname,
-			       source_p->name, chptr->chname, text);
+			       ":%s NOTICE @%s :%s",
+			       use_id(source_p), chptr->chname,
+			       text);
 	rb_linebuf_putmsg(&rb_linebuf_new, NULL, NULL,
 		       ":%s %s =%s :%s",
 		       use_id(source_p), command, chptr->chname, text);
@@ -1297,7 +1297,7 @@ sendto_realops_snomask(int flags, int level, const char *pattern, ...)
 		rb_vsnprintf(buf, sizeof(buf), pattern, args);
 		va_end(args);
 		rb_linebuf_putmsg(&linebuf, pattern, NULL, 
-				":%s NOTICE * :*** Notice -- %s", me.name, buf);
+				":%s NOTICE * :(Global) %s", me.name, buf);
 		snobuf = construct_snobuf(flags);
 		if (snobuf[1] != '\0')
 			sendto_server(NULL, NULL, CAP_ENCAP|CAP_TS6, NOCAPS,
@@ -1311,14 +1311,14 @@ sendto_realops_snomask(int flags, int level, const char *pattern, ...)
 		rb_vsnprintf(buf, sizeof(buf), pattern, args);
 		va_end(args);
 		rb_linebuf_putmsg(&linebuf, pattern, NULL, 
-				":%s NOTICE * :*** Notice -- %s", me.name, buf);
-		sendto_one_notice(remote_rehash_oper_p, ":*** Notice -- %s", buf);
+				":%s NOTICE * :(Notice) %s", me.name, buf);
+		sendto_one_notice(remote_rehash_oper_p, ":(Notice) %s", buf);
 	}
 	else
 	{
 		va_start(args, pattern);
 		rb_linebuf_putmsg(&linebuf, pattern, &args, 
-				":%s NOTICE * :*** Notice -- ", me.name);
+				":%s NOTICE * :(Notice) ", me.name);
 		va_end(args);
 	}
 	level &= ~L_NETWIDE;
@@ -1360,7 +1360,7 @@ sendto_realops_snomask_from(int flags, int level, struct Client *source_p,
 
 	va_start(args, pattern);
 	rb_linebuf_putmsg(&linebuf, pattern, &args, 
-		       ":%s NOTICE * :*** Notice -- ", source_p->name);
+		       ":%s NOTICE * :(Notice) ", source_p->name);
 	va_end(args);
 
 	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, local_oper_list.head)

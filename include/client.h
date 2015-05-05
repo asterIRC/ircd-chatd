@@ -431,10 +431,12 @@ struct ListClient
 
 /* oper-controlled privilege umodes. */
 #define UMODE_OVERRIDE     0x20000
+#define UMODE_NETADMIN     0x40000
 
 /* umode/oper mode macros */
 #define IsOper(x)		((x)->umodes & UMODE_OPER)
 #define IsAdmin(x)		((x)->umodes & UMODE_ADMIN)
+#define IsNetAdmin(x)		((x)->umodes & UMODE_NETADMIN)
 #define IsHelper(x)		((x)->umodes & UMODE_HELPER)
 #define IsAnyOper(x)		((x)->umodes & (UMODE_OPER|UMODE_HELPER))
 
@@ -521,7 +523,7 @@ struct ListClient
 #define SetOper(x)              {(x)->umodes |= UMODE_OPER; \
 				 if (MyClient((x))) (x)->handler = OPER_HANDLER;}
 
-#define ClearOper(x)            {(x)->umodes &= ~(UMODE_OPER|UMODE_ADMIN); \
+#define ClearOper(x)            {(x)->umodes &= ~(UMODE_OPER|UMODE_ADMIN|UMODE_NETADMIN); \
 				 if (MyClient((x)) && !IsOper((x)) && !IsServer((x))) \
 				  (x)->handler = CLIENT_HANDLER; }
 

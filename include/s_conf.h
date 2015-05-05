@@ -147,6 +147,7 @@ struct config_file_entry
 
 	char *default_operstring;
 	char *default_adminstring;
+	char *default_netadminstring;
 	char *default_helperstring;
 	char *servicestring;
 	char *kline_reason;

@@ -176,22 +176,23 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define can_send_banned(x) ((x) && (x)->flags & (CHFL_BANNED|CHFL_QUIETED))
 
 /* channel modes ONLY */
-#define MODE_PRIVATE    0x0001
-#define MODE_SECRET     0x0002
-#define MODE_MODERATED  0x0004
-#define MODE_TOPICLIMIT 0x0008
-#define MODE_INVITEONLY 0x0010
-#define MODE_NOPRIVMSGS 0x0020
-#define MODE_REGONLY	0x0040
-#define MODE_NOCOLOR	0x0080
-#define MODE_EXLIMIT	0x0100  /* exempt from list limits, +b/+e/+I/+q */
-#define MODE_PERMANENT  0x0200  /* permanant channel, +P */
-#define MODE_OPMODERATE 0x0400  /* send rejected messages to ops */
-#define MODE_FREEINVITE 0x0800  /* allow free use of /invite */
-#define MODE_FREETARGET 0x1000  /* can be forwarded to without authorization */
-#define MODE_DISFORWARD 0x2000  /* disable channel forwarding */
-#define MODE_NOOPERKICK 0x4000  /* disallow kicking opers */
-#define MODE_NOCTCP     0x8000  /* Block CTCPs directed to this channel */
+#define MODE_PRIVATE    0x00001
+#define MODE_SECRET     0x00002
+#define MODE_MODERATED  0x00004
+#define MODE_TOPICLIMIT 0x00008
+#define MODE_INVITEONLY 0x00010
+#define MODE_NOPRIVMSGS 0x00020
+#define MODE_REGONLY	0x00040
+#define MODE_NOCOLOR	0x00080
+#define MODE_EXLIMIT	0x00100  /* exempt from list limits, +b/+e/+I/+q */
+#define MODE_PERMANENT  0x00200  /* permanant channel, +P */
+#define MODE_OPMODERATE 0x00400  /* send rejected messages to ops */
+#define MODE_FREEINVITE 0x00800  /* allow free use of /invite */
+#define MODE_FREETARGET 0x01000  /* can be forwarded to without authorization */
+#define MODE_DISFORWARD 0x02000  /* disable channel forwarding */
+#define MODE_NOOPERKICK 0x04000  /* disallow kicking opers */
+#define MODE_NOCTCP     0x08000  /* Block CTCPs directed to this channel */
+#define MODE_NONOTICE   0x10000  /* Block NOTICEs directed to this channel */
 
 #define CHFL_BAN        0x10000000	/* ban channel flag */
 #define CHFL_EXCEPTION  0x20000000	/* exception to ban channel flag */

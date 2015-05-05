@@ -107,6 +107,12 @@ mo_kill(struct Client *client_p, struct Client *source_p, int parc, const char *
 		sendto_one_notice(source_p, ":KILL changed from %s to %s", user, target_p->name);
 	}
 
+	if (IsNetAdmin(target_p) && !IsNetAdmin(source_p)) {
+		sendto_one_notice(source_p, ":Bullet not shot: you are not a netadmin but the other person is.");
+		sendto_one_notice(target_p, ":(+N) %s attempted to disconnect you with reason %s", source_p->name, reason);
+		return 0;
+	}
+
 	if(MyConnect(target_p))
 		sendto_one(target_p, ":%s!%s@%s KILL %s :%s",
 			   source_p->name, source_p->username, source_p->host,

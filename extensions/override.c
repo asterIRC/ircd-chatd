@@ -161,6 +161,14 @@ hack_channel_access(void *vdata)
 		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE, "%s is using oper-override on %s (modehacking)",
 				       get_oper_name(data->client), data->chptr->chname);
 	}
+
+	if (data->client->umodes & UMODE_NETADMIN)
+	{
+		data->approved = CHFL_QOP;
+
+		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE, "%s is +N modehacking %s",
+				       get_oper_name(data->client), data->chptr->chname);
+	}
 }
 
 static void
@@ -177,6 +185,14 @@ hack_can_join(void *vdata)
 		data->approved = 0;
 
 		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE, "%s is using oper-override on %s (banwalking)",
+				       get_oper_name(data->client), data->chptr->chname);
+	}
+
+	if (data->client->umodes & UMODE_NETADMIN)
+	{
+		data->approved = 0;
+
+		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE, "%s is +N banwalking %s",
 				       get_oper_name(data->client), data->chptr->chname);
 	}
 }
@@ -198,6 +214,15 @@ hack_can_send(void *vdata)
 		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE, "%s is using oper-override on %s (banwalking)",
 				       get_oper_name(data->client), data->chptr->chname);
 #endif
+	}
+
+	if (data->client->umodes & UMODE_NETADMIN)
+	{
+		update_session_deadline(data->client, NULL);
+		data->approved = CAN_SEND_OPV;
+
+		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE, "%s is +N moderation walking on %s",
+				       get_oper_name(data->client), data->chptr->chname);
 	}
 }
 

@@ -206,6 +206,7 @@ add_accept(struct Client *source_p, struct Client *target_p)
 {
 	rb_dlinkAddAlloc(target_p, &source_p->localClient->allow_list);
 	rb_dlinkAddAlloc(source_p, &target_p->on_allow_list);
+	sendto_one_notice(target_p,);
 }
 
 

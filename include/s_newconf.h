@@ -170,6 +170,7 @@ extern void cluster_generic(struct Client *, const char *, int cltype,
 #define IsOperResv(x)           HasPrivilege(x, "oper:resv")
 #define IsOperRemoteBan(x)      HasPrivilege(x, "oper:remoteban")
 #define IsOperAdmin(x)          HasPrivilege(x, "oper:admin")
+#define IsOperNetAdmin(x)       HasPrivilege(x, "oper:netadmin")
 #define IsOperDie(x)            HasPrivilege(x, "oper:die")
 #define IsOperGrant(x)          HasPrivilege(x, "oper:grant")
 

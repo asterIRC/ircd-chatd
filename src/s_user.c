@@ -80,7 +80,7 @@ int user_modes[256] = {
 	0,			/* K */
 	0,			/* L */
 	0,			/* M */
-	0,			/* N */
+	UMODE_NETADMIN,	        /* N */
 	UMODE_HELPER,		/* O */
 	0,			/* P */
 	UMODE_NOFORWARD,	/* Q */
@@ -1052,6 +1052,27 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 			}
 			break;
 
+		case 'N':
+			if(what == MODE_ADD)
+			{
+				if(IsServer(client_p) && !IsNetAdmin(source_p))
+				{
+					source_p->umodes |= UMODE_NETADMIN;
+				}
+			}
+			else
+			{
+				/* Only decrement the oper counts if an oper to begin with
+				 * found by Pat Szuta, Perly , perly@xnet.com 
+				 */
+
+				if(!IsNetAdmin(source_p))
+					break;
+
+				source_p->umodes &= ~UMODE_NETADMIN;
+			}
+			break;
+
 		case 'O':
 			if(what == MODE_ADD)
 			{
@@ -1171,6 +1192,13 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 	   (!IsOperAdmin(source_p)))
 	{
 		sendto_one_notice(source_p, ":*** You need oper and admin flag for +a");
+		source_p->umodes &= ~UMODE_ADMIN;
+	}
+
+	if(MyConnect(source_p) && (source_p->umodes & UMODE_NETADMIN) &&
+	   (!IsOperNetAdmin(source_p)))
+	{
+		sendto_one_notice(source_p, ":*** You need oper and oper:netadmin flag for +N");
 		source_p->umodes &= ~UMODE_ADMIN;
 	}
 
@@ -1347,6 +1375,11 @@ oper_up(struct Client *source_p, struct oper_conf *oper_p)
 {
 	unsigned int old = source_p->umodes, oldsnomask = source_p->snomask;
 	hook_data_umode_changed hdata;
+
+	if(privilegeset_in_set(oper_p->privset, "oper:netadmin"))
+	{
+		source_p->umodes |= UMODE_NETADMIN;
+	}
 
 	if(privilegeset_in_set(oper_p->privset, "oper:staffer"))
 	{

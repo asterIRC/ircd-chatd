@@ -10,7 +10,7 @@ AC_PREREQ(2.57)
 dnl Sneaky way to get an Id tag into the configure script
 AC_COPYRIGHT([$Id: configure.ac 3516 2007-06-10 16:14:03Z jilles $])
 
-AC_INIT([ircd-seven-caffeine],[1.0.5])
+AC_INIT([ircd-chatd],[0.2-RC1])
 
 AC_CONFIG_HEADER(include/setup.h)
 
