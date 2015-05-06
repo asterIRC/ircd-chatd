@@ -791,6 +791,52 @@ chm_staff(struct Client *source_p, struct Channel *chptr,
 	}
 }
 
+
+void
+chm_server(struct Client *source_p, struct Channel *chptr,
+	  int alevel, int parc, int *parn,
+	  const char **parv, int *errors, int dir, char c, long mode_type)
+{
+	if(!IsServer(source_p))
+	{
+		if(!(*errors & SM_ERR_NOPRIVS))
+			sendto_one_numeric(source_p, ERR_NOPRIVILEGES, form_str(ERR_NOPRIVILEGES));
+		*errors |= SM_ERR_NOPRIVS;
+		return;
+	}
+
+	if(MyClient(source_p) && (++mode_limit_simple > MAXMODES_SIMPLE))
+		return;
+
+	/* setting + */
+	if((dir == MODE_ADD) && !(chptr->mode.mode & mode_type))
+	{
+		chptr->mode.mode |= mode_type;
+
+		mode_changes[mode_count].letter = c;
+		mode_changes[mode_count].dir = MODE_ADD;
+		mode_changes[mode_count].caps = 0;
+		mode_changes[mode_count].nocaps = 0;
+		mode_changes[mode_count].id = NULL;
+		mode_changes[mode_count].mems = ALL_MEMBERS;
+		mode_changes[mode_count].override = 0;
+		mode_changes[mode_count++].arg = NULL;
+	}
+	else if((dir == MODE_DEL) && (chptr->mode.mode & mode_type))
+	{
+		chptr->mode.mode &= ~mode_type;
+
+		mode_changes[mode_count].letter = c;
+		mode_changes[mode_count].dir = MODE_DEL;
+		mode_changes[mode_count].caps = 0;
+		mode_changes[mode_count].nocaps = 0;
+		mode_changes[mode_count].mems = ALL_MEMBERS;
+		mode_changes[mode_count].id = NULL;
+		mode_changes[mode_count].override = 0;
+		mode_changes[mode_count++].arg = NULL;
+	}
+}
+
 void
 chm_ban(struct Client *source_p, struct Channel *chptr,
 	int alevel, int parc, int *parn,
@@ -2043,7 +2089,7 @@ struct ChannelMode chmode_table[256] =
   {chm_nosuch,	0 },			/* O */
   {chm_staff,	MODE_PERMANENT },	/* P */
   {chm_simple,	MODE_DISFORWARD },	/* Q */
-  {chm_nosuch,	0 },			/* R */
+  {chm_simple,	MODE_REGONLY },		/* R */
   {chm_nosuch,	0 },			/* S */
   {chm_simple,	MODE_NONOTICE },	/* T */
   {chm_nosuch,	0 },			/* U */
@@ -2075,7 +2121,7 @@ struct ChannelMode chmode_table[256] =
   {chm_op,	0 },		/* o */
   {chm_simple,	MODE_PRIVATE },		/* p */
   {chm_ban,	CHFL_QUIET },		/* q */
-  {chm_simple,  MODE_REGONLY },		/* r */
+  {chm_server,  MODE_REGCHAN },		/* r */
   {chm_simple,	MODE_SECRET },		/* s */
   {chm_simple,	MODE_TOPICLIMIT },	/* t */
   {chm_nosuch,	0 },			/* u */

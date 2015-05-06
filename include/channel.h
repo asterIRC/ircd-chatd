@@ -164,8 +164,8 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define ONLY_SERVERS		0x000020
 #define ONLY_OPERS		0x000040
 #define ALL_MEMBERS		CHFL_PEON
-#define ONLY_CHANOPS		CHFL_CHANOP
-#define ONLY_CHANOPSVOICED	(CHFL_CHANOP|CHFL_VOICE)
+#define ONLY_CHANOPS		(CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP)
+#define ONLY_CHANOPSVOICED	(CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP|CHFL_VOICE)
 
 #define is_halfop(x)	((x) && ((x)->flags & CHFL_HALFOP))
 #define is_chanop(x)	((x) && ((x)->flags & CHFL_CHANOP))
@@ -196,6 +196,7 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define MODE_NOOPERKICK 0x04000  /* disallow kicking opers */
 #define MODE_NOCTCP     0x08000  /* Block CTCPs directed to this channel */
 #define MODE_NONOTICE   0x10000  /* Block NOTICEs directed to this channel */
+#define MODE_REGCHAN    0x20000  /* Channel is registered and will show up in /CLIST if that ever gets implemented. */
 
 #define CHFL_BAN        0x10000000	/* ban channel flag */
 #define CHFL_EXCEPTION  0x20000000	/* exception to ban channel flag */
