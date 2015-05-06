@@ -49,6 +49,7 @@
 #include "monitor.h"
 
 static int me_su(struct Client *, struct Client *, int, const char **);
+static int me_identified(struct Client *, struct Client *, int, const char **);
 static int me_login(struct Client *, struct Client *, int, const char **);
 static int me_rsfnc(struct Client *, struct Client *, int, const char **);
 static int me_nickdelay(struct Client *, struct Client *, int, const char **);
@@ -60,6 +61,10 @@ static void h_svc_stats(hook_data_int *);
 struct Message su_msgtab = {
 	"SU", 0, 0, 0, MFLG_SLOW,
 	{mg_ignore, mg_ignore, mg_ignore, mg_ignore, {me_su, 2}, mg_ignore}
+};
+struct Message identified_msgtab = {
+	"IDENTIFIED", 0, 0, 0, MFLG_SLOW,
+	{mg_ignore, mg_ignore, mg_ignore, mg_ignore, {me_identified, 2}, mg_ignore}
 };
 struct Message login_msgtab = {
 	"LOGIN", 0, 0, 0, MFLG_SLOW,
@@ -75,7 +80,7 @@ struct Message nickdelay_msgtab = {
 };
 
 mapi_clist_av1 services_clist[] = { 
-	&su_msgtab, &login_msgtab, &rsfnc_msgtab, &nickdelay_msgtab, NULL
+	&su_msgtab, &login_msgtab, &rsfnc_msgtab, &nickdelay_msgtab, &identified_msgtab, NULL
 };
 mapi_hfn_list_av1 services_hfnlist[] = {
 	{ "doing_stats",	(hookfn) h_svc_stats },
@@ -110,6 +115,32 @@ me_su(struct Client *client_p, struct Client *source_p,
 	sendto_common_channels_local_butone(target_p, CLICAP_ACCOUNT_NOTIFY, ":%s!%s@%s ACCOUNT %s",
 					    target_p->name, target_p->username, target_p->host,
 					    EmptyString(target_p->user->suser) ? "*" : target_p->user->suser);
+
+	invalidate_bancache_user(target_p);
+
+	return 0;
+}
+
+static int
+me_identified(struct Client *client_p, struct Client *source_p,
+	int parc, const char *parv[])
+{
+	struct Client *target_p;
+
+	if(!(source_p->flags & FLAGS_SERVICE))
+		return 0;
+
+	if((target_p = find_client(parv[1])) == NULL)
+		return 0;
+
+	if(!target_p->user)
+		return 0;
+
+	if (parv[2][0] == '+') {
+		target_p->umodes |= UMODE_REGISTERED;
+	} else {
+		target_p->umodes &= ~UMODE_REGISTERED;
+	}
 
 	invalidate_bancache_user(target_p);
 

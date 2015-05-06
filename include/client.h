@@ -430,6 +430,7 @@ struct ListClient
 #define UMODE_ADMIN        0x2000	/* Admin on server */
 #define UMODE_HELPER       0x4000	/* Helper */
 #define UMODE_SSLCLIENT    0x8000	/* using SSL */
+#define UMODE_REGISTERED  0x80000	/* is regged with nick-style services (uses METADATA NICKTS rather than SU) */
 
 /* oper-controlled privilege umodes. */
 #define UMODE_OVERRIDE     0x20000

@@ -112,7 +112,7 @@ int user_modes[256] = {
 	UMODE_OPER,		/* o */
 	UMODE_OVERRIDE,		/* p */
 	0,			/* q */
-	0,			/* r */
+	UMODE_REGISTERED,	/* r */
 	UMODE_SERVNOTICE,	/* s */
 	0,			/* t */
 	0,			/* u */
@@ -966,16 +966,18 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 	if(IsServer(source_p))
 	{
 		sendto_realops_snomask(SNO_GENERAL, L_ADMIN | L_NETWIDE,
-				     "*** Mode for User %s from %s", parv[1], source_p->name);
+				     "BUG? Mode for User %s from %s.", parv[1], source_p->name);
 		return 0;
 	}
 
-	if(source_p != target_p)
+	if((source_p != target_p) && !IsService(source_p))
 	{
 		if (MyOper(source_p) && parc < 3)
 			show_other_user_mode(source_p, target_p);
 		else
 			sendto_one(source_p, form_str(ERR_USERSDONTMATCH), me.name, source_p->name);
+		sendto_realops_snomask(SNO_GENERAL, L_NETWIDE,
+				     "Mode for %s from %s - not applying.", parv[1], source_p->name);
 		return 0;
 	}
 
@@ -999,8 +1001,8 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 	}
 
 	/* find flags already set for user */
-	setflags = source_p->umodes;
-	setsnomask = source_p->snomask;
+	setflags = target_p->umodes;
+	setsnomask = target_p->snomask;
 
 	/*
 	 * parse mode change string(s)
@@ -1018,7 +1020,7 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 		case 'o':
 			if(what == MODE_ADD)
 			{
-				if(IsServer(client_p) && !IsOper(source_p))
+				if(IsServer(client_p) && !IsOper(target_p))
 				{
 					++Count.oper;
 					SetOper(source_p);
@@ -1031,43 +1033,43 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 				 * found by Pat Szuta, Perly , perly@xnet.com 
 				 */
 
-				if(!IsOper(source_p))
+				if(!IsOper(target_p))
 					break;
 
-				ClearOper(source_p);
+				ClearOper(target_p);
 
 				Count.oper--;
 
-				if(MyConnect(source_p))
+				if(MyConnect(target_p))
 				{
-					source_p->umodes &= ~ConfigFileEntry.oper_only_umodes;
-					if (!(source_p->umodes & UMODE_SERVNOTICE) && source_p->snomask != 0)
+					target_p->umodes &= ~ConfigFileEntry.oper_only_umodes;
+					if (!(target_p->umodes & UMODE_SERVNOTICE) && source_p->snomask != 0)
 					{
-						source_p->snomask = 0;
+						target_p->snomask = 0;
 						showsnomask = YES;
 					}
-					source_p->operflags = 0;
+					target_p->operflags = 0;
 
-					rb_dlinkFindDestroy(source_p, &local_oper_list);
-					privilegeset_unref(source_p->localClient->privset);
-					source_p->localClient->privset = NULL;
+					rb_dlinkFindDestroy(target_p, &local_oper_list);
+					privilegeset_unref(target_p->localClient->privset);
+					target_p->localClient->privset = NULL;
 				}
-				if(source_p->user->opername)
+				if(target_p->user->opername)
 				{
-					rb_free(source_p->user->opername);
-					source_p->user->opername = NULL;
+					rb_free(target_p->user->opername);
+					target_p->user->opername = NULL;
 				}
 
-				rb_dlinkFindDestroy(source_p, &oper_list);
+				rb_dlinkFindDestroy(target_p, &oper_list);
 			}
 			break;
 
 		case 'N':
 			if(what == MODE_ADD)
 			{
-				if(IsServer(client_p) && !IsNetAdmin(source_p))
+				if(IsServer(client_p) && !IsNetAdmin(target_p))
 				{
-					source_p->umodes |= UMODE_NETADMIN;
+					target_p->umodes |= UMODE_NETADMIN;
 				}
 			}
 			else
@@ -1076,10 +1078,10 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 				 * found by Pat Szuta, Perly , perly@xnet.com 
 				 */
 
-				if(!IsNetAdmin(source_p))
+				if(!IsNetAdmin(target_p))
 					break;
 
-				source_p->umodes &= ~UMODE_NETADMIN;
+				target_p->umodes &= ~UMODE_NETADMIN;
 			}
 			break;
 
@@ -1119,7 +1121,16 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 			/* we may not get these,
 			 * but they shouldnt be in default
 			 */
+		case 'r':
+			if (IsService(source_p)) { /* Literally can only tolerate U:lined clients having this power (to set users registered). -- janicez */
+				if (what == MODE_ADD) {
+					target_p->umodes |= UMODE_REGISTERED;
+				} else {
+					target_p->umodes &= ~UMODE_REGISTERED;
+				}
+			}
 
+			break;
 		/* can only be set on burst */
 		case 'S':
 		case 'Z':
@@ -1232,7 +1243,7 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 	 * compare new flags with old flags and send string which
 	 * will cause servers to update correctly.
 	 */
-	send_umode_out(client_p, source_p, setflags);
+	send_umode_out(target_p, target_p, setflags);
 	if (showsnomask && MyConnect(source_p))
 		sendto_one_numeric(source_p, RPL_SNOMASK, form_str(RPL_SNOMASK),
 			construct_snobuf(source_p->snomask));
@@ -1301,7 +1312,7 @@ send_umode(struct Client *client_p, struct Client *source_p, int old, int sendma
 	*m = '\0';
 
 	if(*umode_buf && client_p)
-		sendto_one(client_p, ":%s MODE %s :%s", source_p->name, source_p->name, umode_buf);
+		sendto_one(client_p, ":%s MODE %s :%s", source_p->name, client_p->name, umode_buf);
 }
 
 /*
