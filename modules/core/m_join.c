@@ -346,8 +346,19 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		if(flags & CHFL_CHANOP)
 		{
 			chptr->channelts = rb_current_time();
-			chptr->mode.mode |= MODE_SECRET;
-			chptr->mode.mode |= MODE_NOPRIVMSGS;
+			if(ConfigChannel.automodes)
+			{
+				char * ch;
+				for(ch = ConfigChannel.automodes; *ch; *ch++)
+				{
+					chptr->mode.mode |= chmode_table[*ch].mode_type;
+				}
+			}
+			else
+			{
+				chptr->mode.mode |= MODE_TOPICLIMIT;
+				chptr->mode.mode |= MODE_NOPRIVMSGS;
+			}
 			modes = channel_modes(chptr, &me);
 
 			sendto_channel_local(ONLY_CHANOPS, chptr, ":%s MODE %s %s",
@@ -357,6 +368,13 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 				      ":%s SJOIN %ld %s %s :@%s",
 				      me.id, (long) chptr->channelts,
 				      chptr->chname, modes, source_p->id);
+
+			sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+				      ":%s TOPIC %s :%s",
+				      me.id,
+				      chptr->chname, chptr->topic == NULL ? "" : chptr->topic);
+
+			if (strlen(ConfigChannel.autotopic)!=0 && strlen(ConfigChannel.autotopic)<=TOPICLEN) set_channel_topic(chptr, ConfigChannel.autotopic, me.name, rb_current_time());
 		}
 		else
 		{
@@ -1387,8 +1405,8 @@ do_join_0(struct Client *client_p, struct Client *source_p)
 	if(MyClient(source_p) && !IsFloodDone(source_p))
 		flood_endgrace(source_p);
 
-	sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s JOIN 0", use_id(source_p));
-
+	//sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s JOIN 0", use_id(source_p));
+	/* Instead of this, we will send a PART for all the channels the user is on. Much easier to track. */
 	while((ptr = source_p->user->channel.head))
 	{
 		if(MyConnect(source_p) &&
@@ -1397,7 +1415,8 @@ do_join_0(struct Client *client_p, struct Client *source_p)
 
 		msptr = ptr->data;
 		chptr = msptr->chptr;
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s",
+		sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s PART %s :JOIN 0", use_id(source_p), chptr->chname);
+		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :JOIN 0",
 				     source_p->name,
 				     source_p->username, source_p->host, chptr->chname);
 		remove_user_from_channel(msptr);

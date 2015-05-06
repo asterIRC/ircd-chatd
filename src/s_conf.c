@@ -763,6 +763,9 @@ set_default_conf(void)
 	ConfigChannel.knock_delay_channel = 60;
 	ConfigChannel.max_chans_per_user = 15;
 	ConfigChannel.max_chans_per_user_large = 15;
+	ConfigChannel.automodes = rb_strdup("CTnst");
+	ConfigChannel.autotopic = rb_strdup("Please set a topic.");
+	ConfigChannel.max_bans = 25;
 	ConfigChannel.max_bans = 25;
 	ConfigChannel.max_bans_large = 500;
 	ConfigChannel.only_ascii_channels = NO;

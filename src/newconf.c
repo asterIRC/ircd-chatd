@@ -2240,6 +2240,8 @@ static struct ConfEntry conf_channel_table[] =
 	{ "kick_on_split_riding", CF_YESNO, NULL, 0, &ConfigChannel.kick_on_split_riding },
 	{ "knock_delay",	CF_TIME,  NULL, 0, &ConfigChannel.knock_delay		},
 	{ "knock_delay_channel",CF_TIME,  NULL, 0, &ConfigChannel.knock_delay_channel	},
+	{ "automatic_modes",    CF_QSTRING,   NULL, 0, &ConfigChannel.automodes		},
+	{ "automatic_topic",    CF_QSTRING,   NULL, 0, &ConfigChannel.autotopic		},
 	{ "max_bans",		CF_INT,   NULL, 0, &ConfigChannel.max_bans		},
 	{ "max_bans_large",	CF_INT,   NULL, 0, &ConfigChannel.max_bans_large	},
 	{ "max_chans_per_user", CF_INT,   NULL, 0, &ConfigChannel.max_chans_per_user 	},
