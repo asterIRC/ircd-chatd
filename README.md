@@ -16,3 +16,5 @@ If you are interested in meeting the developer(s), go to:
     ircs://irc.pitnet.ga:6697/lobby
 
 Thankya!
+
+ircd-chatd.c is the shalture protocol module for this ircd.
