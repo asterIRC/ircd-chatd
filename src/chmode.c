@@ -2121,7 +2121,7 @@ struct ChannelMode chmode_table[256] =
   {chm_op,	0 },		/* o */
   {chm_simple,	MODE_PRIVATE },		/* p */
   {chm_ban,	CHFL_QUIET },		/* q */
-  {chm_server,  MODE_REGCHAN },		/* r */
+  {chm_nosuch,  0 },		/* r */
   {chm_simple,	MODE_SECRET },		/* s */
   {chm_simple,	MODE_TOPICLIMIT },	/* t */
   {chm_nosuch,	0 },			/* u */
