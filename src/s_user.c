@@ -1370,13 +1370,15 @@ user_welcome(struct Client *source_p)
 	if(ConfigFileEntry.short_motd)
 	{
 		sendto_one_notice(source_p, ":*** Notice -- motd was last changed at %s", user_motd_changed);
-		sendto_one_notice(source_p, ":*** Notice -- Please read the motd if you haven't read it");
+		sendto_one_notice(source_p, ":*** Notice -- Please read the output of /motd if you haven't read it");
 
 		sendto_one(source_p, form_str(RPL_MOTDSTART), 
 			   me.name, source_p->name, me.name);
 
+		send_short_motd(source_p);
+
 		sendto_one(source_p, form_str(RPL_MOTD),
-			   me.name, source_p->name, "*** This is the short motd ***");
+			   me.name, source_p->name, "*** End of short MOTD ***");
 
 		sendto_one(source_p, form_str(RPL_ENDOFMOTD), me.name, source_p->name);
 	}

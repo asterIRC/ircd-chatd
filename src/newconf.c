@@ -2158,6 +2158,7 @@ static struct ConfEntry conf_general_table[] =
 	{ "stats_i_oper_only", 	CF_STRING, conf_set_general_stats_i_oper_only,	0, NULL },
 	{ "default_umodes",	CF_QSTRING, conf_set_general_default_umodes, 0, NULL },
 
+	{ "cloak_key",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.cloak_key },
 	{ "default_operstring",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_operstring },
 	{ "default_adminstring",CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_adminstring },
 	{ "default_netadminstring",CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_netadminstring },

@@ -89,12 +89,14 @@ static void
 rehash_motd(struct Client *source_p)
 {
 	sendto_realops_snomask(SNO_GENERAL, L_ALL,
-			     "%s is forcing re-reading of MOTD file",
+			     "%s is forcing re-reading of MOTD, Short MOTD and RULES files.",
 			     get_oper_name(source_p));
 	if (!MyConnect(source_p))
 		remote_rehash_oper_p = source_p;
 
 	cache_user_motd();
+	cache_short_motd();
+	cache_user_rules();
 }
 
 static void

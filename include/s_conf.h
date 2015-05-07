@@ -154,6 +154,7 @@ struct config_file_entry
 
 	char *identifyservice;
 	char *identifycommand;
+	char *cloak_key;
 	
 	char *fname_userlog;
 	char *fname_fuserlog;

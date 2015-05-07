@@ -63,6 +63,8 @@
 #define LIPATH   LIBPATH "/libircd" SHARED_SUFFIX  /* ircd library */
 #define CPATH    ETCPATH "/ircd.conf"		   /* ircd.conf file */
 #define MPATH    ETCPATH "/ircd.motd"		   /* MOTD file */
+#define SMPATH   ETCPATH "/ircd.smotd"		   /* Short MOTD file */
+#define RPATH    ETCPATH "/ircd.rules"		   /* RULES file */
 #define LPATH    LOGPATH "/ircd.log"		   /* ircd logfile */
 #define PPATH    ETCPATH "/ircd.pid"		   /* pid file */
 #define OPATH    ETCPATH "/opers.motd"		   /* oper MOTD file */
