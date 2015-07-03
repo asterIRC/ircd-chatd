@@ -44,6 +44,7 @@ SRCS =                          \
   extb_ssl_fp.c			\
   extb_realname.c		\
   extb_extgecos.c		\
+  extb_xascii.c		\
   force_user_invis.c		\
   identify_msg.c		\
   ip_cloaking.c			\

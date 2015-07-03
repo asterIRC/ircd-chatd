@@ -615,6 +615,24 @@ check_xlines(void)
 	}
 }
 
+/* int IsXAscii
+ *
+ * input        - client pointer
+ * output       - whether or not the client has an Extended Ascii (UTF8? ISO-8859-1?) nick, as a boolean
+ * side effects - none
+ */
+
+int
+IsXAscii(struct Client *client_p)
+{
+	int i;
+	const char *x = rb_strdup(client_p->name);
+	for (i = 0; i < strlen(x); i++) {
+		if (x[i] <= 0 || x[i] >= 127) return 1;
+	}
+	return 0;
+}
+
 /*
  * update_client_exit_stats
  *

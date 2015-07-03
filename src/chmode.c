@@ -2452,7 +2452,7 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 			*mbuf = '\0';
 			if(cur_len > mlen)
 			{
-				sendto_channel_local(flags, chptr, "%s%s %s", cmdbuf, modebuf, parabuf);
+				sendto_channel_local(ALL_MEMBERS, chptr, "%s%s %s", cmdbuf, modebuf, parabuf);
 				if(override)
 					sendto_realops_snomask(SNO_GENERAL, L_NETWIDE,
 							"%s is overriding modes on %s: %s %s",

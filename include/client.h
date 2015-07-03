@@ -483,6 +483,9 @@ struct ListClient
 #define SetMyConnect(x)		((x)->flags |= FLAGS_MYCONNECT)
 #define ClearMyConnect(x)	((x)->flags &= ~FLAGS_MYCONNECT)
 
+// and a function because lulz
+extern int IsXAscii(struct Client *client_p);
+
 #define MyClient(x)             (MyConnect(x) && IsClient(x))
 #define SetMark(x)		((x)->flags |= FLAGS_MARK)
 #define ClearMark(x)		((x)->flags &= ~FLAGS_MARK)
