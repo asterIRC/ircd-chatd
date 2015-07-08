@@ -316,6 +316,11 @@ extern const char *form_str(int);
 
 #define ERR_HELPNOTFOUND     524
 
+#define RPL_RULES	        600
+#define RPL_RULESTART        601
+#define RPL_ENDOFRULES     602
+#define ERR_NORULES      603
+
 #define RPL_WHOISSECURE      671 /* Unreal3.2 --nenolod */
 
 #define RPL_MODLIST          702
