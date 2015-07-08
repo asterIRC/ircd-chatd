@@ -47,7 +47,7 @@ struct Message rules_msgtab = {
 
 mapi_clist_av1 rules_clist[] = { &rules_msgtab, NULL };
 
-DECLARE_MODULE_AV1(rules, NULL, NULL, rules_clist, rules_hlist, NULL, "$Revision: 254 $");
+DECLARE_MODULE_AV1(rules, NULL, NULL, rules_clist, NULL, NULL, "$Revision: 254 $");
 
 /*
 ** m_motd
@@ -73,7 +73,7 @@ m_rules(struct Client *client_p, struct Client *source_p, int parc, const char *
 	if(hunt_server(client_p, source_p, ":%s RULES :%s", 1, parc, parv) != HUNTED_ISME)
 		return 0;
 
-	motd_spy(source_p);
+	//motd_spy(source_p);
 	send_user_rules(source_p);
 
 	return 0;
@@ -89,7 +89,7 @@ mo_rules(struct Client *client_p, struct Client *source_p, int parc, const char 
 	if(hunt_server(client_p, source_p, ":%s RULES :%s", 1, parc, parv) != HUNTED_ISME)
 		return 0;
 
-	motd_spy(source_p);
+	//motd_spy(source_p);
 	send_user_rules(source_p);
 
 	return 0;

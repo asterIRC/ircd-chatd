@@ -108,7 +108,7 @@ char *alloca ();
 #endif
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <netinet/sctp.h>
+//#include <netinet/sctp.h>
 #include <arpa/inet.h>
 
 #ifdef HAVE_ERRNO_H
