@@ -91,6 +91,7 @@ TSRCS =                          \
   m_rehash.c \
   m_restart.c \
   m_resv.c \
+  m_rules.c \
   m_sasl.c \
   m_scan.c \
   m_services.c \
