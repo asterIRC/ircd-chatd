@@ -39,3 +39,5 @@ run/
 libltdl/
 ltmain.sh
 
+*.orig
+*.rej

@@ -332,6 +332,9 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 	if(IsSSLClient(target_p))
 		sendto_one_numeric(source_p, RPL_WHOISSECURE, form_str(RPL_WHOISSECURE),
 				   target_p->name);
+	if(target_p->umodes & UMODE_SCTPCLIENT)
+		sendto_one_numeric(source_p, RPL_WHOISSPECIAL, form_str(RPL_WHOISSPECIAL),
+				   target_p->name, "is using an SCTP connection (rather than TCP, which is the default for IRC)");
 	if((source_p == target_p || IsOper(source_p)) &&
 			target_p->certfp != NULL)
 		sendto_one_numeric(source_p, RPL_WHOISCERTFP,

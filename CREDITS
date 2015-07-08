@@ -30,7 +30,7 @@ Visit the freenode website at: http://www.freenode.net
 Visit us on IRC at: irc.freenode.net #freenode-seven
 
 Some portions of this program were ported from 
-Elemental IRCd and SyntaxIRCd.
+Elemental IRCd and SyntaxIRCd, and Craigory's fork of ircd-modnar.
 Listed below is the credits file.
 
 $Id: CREDITS 3133 2007-01-21 15:38:16Z jilles $

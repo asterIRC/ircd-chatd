@@ -68,7 +68,7 @@ int user_modes[256] = {
 	/* 0x20 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x2F */
 	/* 0x30 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x3F */
 	0,			/* @ */
-	0,			/* A */
+	UMODE_SCTPCLIENT,	/* A */
 	0,			/* B */
 	0,			/* C */
 	UMODE_DEAF,		/* D */
@@ -534,6 +534,9 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 
 	if (IsSSL(source_p))
 		source_p->umodes |= UMODE_SSLCLIENT;
+
+	if (IsSCTP(source_p))
+		source_p->umodes |= UMODE_SCTPCLIENT;
 
 	if (source_p->umodes & UMODE_INVISIBLE)
 		Count.invisi++;
@@ -1134,6 +1137,7 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 		/* can only be set on burst */
 		case 'S':
 		case 'Z':
+		case 'A':
 		case ' ':
 		case '\n':
 		case '\r':

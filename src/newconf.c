@@ -333,6 +333,7 @@ static struct mode_table connect_table[] = {
 	{ "encrypted",	SERVER_ENCRYPTED	},
 	{ "topicburst",	SERVER_TB		},
 	{ "ssl",	SERVER_SSL		},
+	{ "sctp",	SERVER_SCTP		},
 	{ NULL,		0			},
 };
 
@@ -884,6 +885,41 @@ conf_set_listen_port_both(void *data, int ssl)
 }
 
 static void
+conf_set_listen_port_sctp_both(void *data, int ssl)
+{
+	conf_parm_t *args = data;
+	for (; args; args = args->next)
+	{
+		if((args->type & CF_MTYPE) != CF_INT)
+		{
+			conf_report_error
+				("listener::sctpport argument is not an integer " "-- ignoring.");
+			continue;
+		}
+                if(listener_address == NULL)
+                {
+			add_sctp_listener(args->v.number, listener_address, AF_INET, ssl);
+#ifdef RB_IPV6
+			add_sctp_listener(args->v.number, listener_address, AF_INET6, ssl);
+#endif
+                }
+		else
+                {
+			int family;
+#ifdef RB_IPV6
+			if(strchr(listener_address, ':') != NULL)
+				family = AF_INET6;
+			else 
+#endif
+				family = AF_INET;
+		
+			add_sctp_listener(args->v.number, listener_address, family, ssl);
+                
+                }
+	}
+}
+
+static void
 conf_set_listen_port(void *data)
 {
 	conf_set_listen_port_both(data, 0);
@@ -893,6 +929,18 @@ static void
 conf_set_listen_sslport(void *data)
 {
 	conf_set_listen_port_both(data, 1);
+}
+
+static void
+conf_set_listen_sctpport(void *data)
+{
+	conf_set_listen_port_sctp_both(data, 0);
+}
+
+static void
+conf_set_listen_sctpsslport(void *data)
+{
+	conf_set_listen_port_sctp_both(data, 1);
 }
 
 static void
@@ -2291,6 +2339,8 @@ newconf_init()
 	add_top_conf("listen", conf_begin_listen, conf_end_listen, NULL);
 	add_conf_item("listen", "port", CF_INT | CF_FLIST, conf_set_listen_port);
 	add_conf_item("listen", "sslport", CF_INT | CF_FLIST, conf_set_listen_sslport);
+	add_conf_item("listen", "sctpport", CF_INT | CF_FLIST, conf_set_listen_sctpport);
+	add_conf_item("listen", "sctpsslport", CF_INT | CF_FLIST, conf_set_listen_sctpsslport);
 	add_conf_item("listen", "ip", CF_QSTRING, conf_set_listen_address);
 	add_conf_item("listen", "host", CF_QSTRING, conf_set_listen_address);
 

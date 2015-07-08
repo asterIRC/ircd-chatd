@@ -88,6 +88,8 @@ extern const char *form_str(int);
 #define RPL_STATSFLINE       224
 #define RPL_STATSDLINE       225
 
+#define RPL_RULES            232 // Unreal
+
 #define RPL_SERVLIST         234
 #define RPL_SERVLISTEND      235
 
@@ -134,6 +136,9 @@ extern const char *form_str(int);
 #define RPL_TEXT             304
 #define RPL_UNAWAY           305
 #define RPL_NOWAWAY          306
+
+#define RPL_ENDOFRULES       308 // Unreal
+#define RPL_RULESSTART       309 // Unreal
 
 /*      RPL_WHOISADMIN       308 -- hybrid */
 
@@ -246,6 +251,7 @@ extern const char *form_str(int);
 #define ERR_NONICKNAMEGIVEN  431
 #define ERR_ERRONEUSNICKNAME 432
 #define ERR_NICKNAMEINUSE    433
+#define ERR_NORULES          434 // Unreal
 #define ERR_BANNICKCHANGE    435	/* bahamut's ERR_BANONCHAN -- jilles */
 #define ERR_NICKCOLLISION    436
 #define ERR_UNAVAILRESOURCE  437

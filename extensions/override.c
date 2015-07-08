@@ -162,7 +162,7 @@ hack_channel_access(void *vdata)
 				       get_oper_name(data->client), data->chptr->chname);
 	}
 
-	if (data->client->umodes & UMODE_NETADMIN)
+	if (IsOperNetAdmin(data->client))
 	{
 		data->approved = CHFL_QOP;
 
@@ -188,7 +188,7 @@ hack_can_join(void *vdata)
 				       get_oper_name(data->client), data->chptr->chname);
 	}
 
-	if (data->client->umodes & UMODE_NETADMIN)
+	if (IsOperNetAdmin(data->client))
 	{
 		data->approved = 0;
 
@@ -216,7 +216,7 @@ hack_can_send(void *vdata)
 #endif
 	}
 
-	if (data->client->umodes & UMODE_NETADMIN)
+	if (IsOperNetAdmin(data->client))
 	{
 		update_session_deadline(data->client, NULL);
 		data->approved = CAN_SEND_OPV;

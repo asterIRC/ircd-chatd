@@ -42,9 +42,11 @@ struct Listener
 	struct rb_sockaddr_storage addr;
 	struct DNSQuery *dns_query;
 	char vhost[HOSTLEN + 1];	/* virtual name of listener */
+	int protonum; /* TCP/SCTP */
 };
 
 extern void add_listener(int port, const char *vaddr_ip, int family, int ssl);
+extern void add_sctp_listener(int port, const char *vaddr_ip, int family, int ssl);
 extern void close_listener(struct Listener *listener);
 extern void close_listeners(void);
 extern const char *get_listener_name(const struct Listener *listener);

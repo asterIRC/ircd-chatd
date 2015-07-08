@@ -374,11 +374,15 @@ send_user_rules(struct Client *source_p)
 		return;
 	}
 
+	sendto_one(source_p, form_str(RPL_RULESSTART), myname, nick, me.name);
+
 	RB_DLINK_FOREACH(ptr, user_rules->contents.head)
 	{
 		lineptr = ptr->data;
-		sendto_one(source_p, ":%s NOTICE %s :(Rules) %s", myname, nick, lineptr->data);
+		sendto_one(source_p, form_str(RPL_RULES), myname, nick, lineptr->data);
 	}
+
+	sendto_one(source_p, form_str(RPL_ENDOFRULES), myname, nick, me.name);
 }
 
 void

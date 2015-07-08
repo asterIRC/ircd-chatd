@@ -41,6 +41,7 @@ SRCS =                          \
   extb_oper.c			\
   extb_server.c			\
   extb_ssl.c			\
+  extb_sctp.c			\
   extb_ssl_fp.c			\
   extb_realname.c		\
   extb_extgecos.c		\

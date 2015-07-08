@@ -189,20 +189,23 @@ do_host_cloak_host(const char *inbuf, char *outbuf)
 
     output[0]=0;
 
-    for (i = 0; i < 11; i = i + 2) {
-        sprintf(buf, "%.2X", hash[i]);
-        strcat(output,buf);
-    }
-
     char *oldhost;
     j = 0;
     oldhost = rb_strdup(inbuf);
+    int hostlen = 0;
 
     for (i = 0; i < strlen(oldhost); i++) {
         oldhost++;
+        hostlen++;
         if (*oldhost == '.') {
             break;
         }
+    }
+
+    for (i = 0; i < 61; i = i + 2) {
+        if (i >= hostlen && i >= 8) break;
+        sprintf(buf, "%.2X", hash[i]);
+        strcat(output,buf);
     }
 
     rb_strlcpy(outbuf,cloakprefix,HOSTLEN+1);

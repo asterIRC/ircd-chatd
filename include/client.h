@@ -410,6 +410,7 @@ struct ListClient
 #define LFLAGS_SSL		0x00000001
 #define LFLAGS_FLUSH		0x00000002
 #define LFLAGS_CORK		0x00000004
+#define LFLAGS_SCTP		0x00000008
 
 /* umodes, settable flags */
 /* lots of this moved to snomask -- jilles */
@@ -430,11 +431,12 @@ struct ListClient
 #define UMODE_ADMIN        0x2000	/* Admin on server */
 #define UMODE_HELPER       0x4000	/* Helper */
 #define UMODE_SSLCLIENT    0x8000	/* using SSL */
-#define UMODE_REGISTERED  0x80000	/* is regged with nick-style services (uses METADATA NICKTS rather than SU) */
-
-/* oper-controlled privilege umodes. */
 #define UMODE_OVERRIDE     0x20000
 #define UMODE_NETADMIN     0x40000
+#define UMODE_REGISTERED   0x80000	/* is regged with nick-style services (uses METADATA NICKTS rather than SU) */
+#define UMODE_SCTPCLIENT   0x100000	/* using SCTP (may be combined with SSLCLIENT if using SSL over SCTP) */
+
+/* oper-controlled privilege umodes. */
 
 /* umode/oper mode macros */
 #define IsOper(x)		((x)->umodes & UMODE_OPER)
@@ -518,6 +520,10 @@ extern int IsXAscii(struct Client *client_p);
 #define IsSSL(x)		((x)->localClient->localflags & LFLAGS_SSL)
 #define SetSSL(x)		((x)->localClient->localflags |= LFLAGS_SSL)
 #define ClearSSL(x)		((x)->localClient->localflags &= ~LFLAGS_SSL)
+
+#define IsSCTP(x)		((x)->localClient->localflags & LFLAGS_SCTP)
+#define SetSCTP(x)		((x)->localClient->localflags |= LFLAGS_SCTP)
+#define ClearSCTP(x)		((x)->localClient->localflags &= ~LFLAGS_SCTP)
 
 #define IsFlush(x)		((x)->localClient->localflags & LFLAGS_FLUSH)
 #define SetFlush(x)		((x)->localClient->localflags |= LFLAGS_FLUSH)
