@@ -337,6 +337,30 @@ send_user_motd(struct Client *source_p)
 }
 
 void
+send_user_rules(struct Client *source_p)
+{
+	struct cacheline *lineptr;
+	rb_dlink_node *ptr;
+	const char *myname = get_id(&me, source_p);
+	const char *nick = get_id(source_p, source_p);
+	if(user_rules == NULL || rb_dlink_list_length(&user_motd->contents) == 0)
+	{
+		sendto_one(source_p, form_str(ERR_NORULES), myname, nick);
+		return;
+	}
+
+	sendto_one(source_p, form_str(RPL_RULESTART), myname, nick, me.name);
+
+	RB_DLINK_FOREACH(ptr, user_rules->contents.head)
+	{
+		lineptr = ptr->data;
+		sendto_one(source_p, form_str(RPL_RULES), myname, nick, lineptr->data);
+	}
+
+	sendto_one(source_p, form_str(RPL_ENDOFRULES), myname, nick);
+}
+
+void
 send_short_motd(struct Client *source_p)
 {
 	struct cacheline *lineptr;
@@ -358,27 +382,6 @@ send_short_motd(struct Client *source_p)
 	}
 
 	sendto_one(source_p, form_str(RPL_ENDOFMOTD), myname, nick);
-}
-
-
-void
-send_user_rules(struct Client *source_p)
-{
-	struct cacheline *lineptr;
-	rb_dlink_node *ptr;
-	const char *myname = get_id(&me, source_p);
-	const char *nick = get_id(source_p, source_p);
-	if(user_rules == NULL || rb_dlink_list_length(&user_motd->contents) == 0)
-	{
-		sendto_one(source_p, form_str(ERR_NOMOTD), myname, nick);
-		return;
-	}
-
-	RB_DLINK_FOREACH(ptr, user_rules->contents.head)
-	{
-		lineptr = ptr->data;
-		sendto_one(source_p, ":%s NOTICE %s :(Rules) %s", myname, nick, lineptr->data);
-	}
 }
 
 void

@@ -21,7 +21,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  *  USA
  *
- *  $Id: m_motd.c 254 2005-09-21 23:35:12Z nenolod $
  */
 
 #include "stdinc.h"
@@ -37,32 +36,31 @@
 #include "s_conf.h"
 #include "cache.h"
 
-static int m_motd(struct Client *, struct Client *, int, const char **);
-static int mo_motd(struct Client *, struct Client *, int, const char **);
+static int m_rules(struct Client *, struct Client *, int, const char **);
+static int mo_rules(struct Client *, struct Client *, int, const char **);
 
-struct Message motd_msgtab = {
-	"MOTD", 0, 0, 0, MFLG_SLOW,
-	{mg_unreg, {m_motd, 0}, {mo_motd, 0}, mg_ignore, mg_ignore, {mo_motd, 0}}
+struct Message rules_msgtab = {
+	"RULES", 0, 0, 0, MFLG_SLOW,
+	{mg_unreg, {m_rules, 0}, {mo_rules, 0}, mg_ignore, mg_ignore, {mo_rules, 0}}
 };
 
-int doing_motd_hook;
+int doing_rules_hook;
 
-mapi_clist_av1 motd_clist[] = { &motd_msgtab, NULL };
-mapi_hlist_av1 motd_hlist[] = {
-	{ "doing_motd",	&doing_motd_hook },
-	{ NULL, NULL }
+mapi_clist_av1 rules_clist[] = { &rules_msgtab, NULL };
+mapi_hlist_av1 rules_hlist[] = {
+        { "doing_rules", &doing_rules_hook },
+        { NULL, NULL }
 };
 
-DECLARE_MODULE_AV1(motd, NULL, NULL, motd_clist, motd_hlist, NULL, "$Revision: 254 $");
 
-static void motd_spy(struct Client *);
+DECLARE_MODULE_AV1(rules, NULL, NULL, rules_clist, rules_hlist, NULL, "$Revision: 254 $");
 
 /*
-** m_motd
+** m_rules
 **      parv[1] = servername
 */
 static int
-m_motd(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
+m_rules(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
 {
 	static time_t last_used = 0;
 
@@ -78,44 +76,25 @@ m_motd(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	else
 		last_used = rb_current_time();
 
-	if(hunt_server(client_p, source_p, ":%s MOTD :%s", 1, parc, parv) != HUNTED_ISME)
+	if(hunt_server(client_p, source_p, ":%s RULES :%s", 1, parc, parv) != HUNTED_ISME)
 		return 0;
 
-	motd_spy(source_p);
-	send_user_motd(source_p);
+	send_user_rules(source_p);
 
 	return 0;
 }
 
 /*
-** mo_motd
+** mo_rules
 **      parv[1] = servername
 */
 static int
-mo_motd(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
+mo_rules(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
 {
-	if(hunt_server(client_p, source_p, ":%s MOTD :%s", 1, parc, parv) != HUNTED_ISME)
+	if(hunt_server(client_p, source_p, ":%s RULES :%s", 1, parc, parv) != HUNTED_ISME)
 		return 0;
 
-	motd_spy(source_p);
-	send_user_motd(source_p);
+	send_user_rules(source_p);
 
 	return 0;
-}
-
-/* motd_spy()
- *
- * input        - pointer to client
- * output       - none
- * side effects - hook doing_motd is called
- */
-static void
-motd_spy(struct Client *source_p)
-{
-	hook_data data;
-
-	data.client = source_p;
-	data.arg1 = data.arg2 = NULL;
-
-	call_hook(doing_motd_hook, &data);
 }
