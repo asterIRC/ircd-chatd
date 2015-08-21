@@ -239,6 +239,7 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 	hook_data_client hdata;
 	int visible;
 	int extra_space = 0;
+	struct Metadata *md;
 
 	if(target_p->user == NULL)
 	{
@@ -310,13 +311,17 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 
 	if(SeesAnyOper(source_p, target_p))
 	{
-		sendto_one_numeric(source_p, RPL_WHOISOPERATOR, form_str(RPL_WHOISOPERATOR),
-				   target_p->name,
-				   IsService(target_p) ? ConfigFileEntry.servicestring :
-				   (IsNetAdmin(target_p) ? GlobalSetOptions.netadminstring :
-				    (IsAdmin(target_p) ? GlobalSetOptions.adminstring :
-				     (IsOper(target_p) ? GlobalSetOptions.operstring :
-				      GlobalSetOptions.helperstring))));
+		if((md = user_metadata_find(target_p, "OPERSTRING")))
+			sendto_one_numeric(source_p, RPL_WHOISOPERATOR, "%s :%s",
+					   target_p->name, md->value);
+		else
+			sendto_one_numeric(source_p, RPL_WHOISOPERATOR, form_str(RPL_WHOISOPERATOR),
+					   target_p->name,
+					   IsService(target_p) ? ConfigFileEntry.servicestring :
+					   (IsNetAdmin(target_p) ? GlobalSetOptions.netadminstring :
+					    (IsAdmin(target_p) ? GlobalSetOptions.adminstring :
+					     (IsOper(target_p) ? GlobalSetOptions.operstring :
+					      GlobalSetOptions.helperstring))));
 	}
 
 	if(MyClient(target_p) && !EmptyString(target_p->user->opername) &&
@@ -335,6 +340,9 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 	if(target_p->umodes & UMODE_SCTPCLIENT)
 		sendto_one_numeric(source_p, RPL_WHOISSPECIAL, form_str(RPL_WHOISSPECIAL),
 				   target_p->name, "is using an SCTP connection (rather than TCP, which is the default for IRC)");
+	if((md = user_metadata_find(target_p, "SWHOIS")))
+		sendto_one_numeric(source_p, RPL_WHOISSPECIAL, form_str(RPL_WHOISSPECIAL),
+				   target_p->name, md->value);
 	if((source_p == target_p || IsOper(source_p)) &&
 			target_p->certfp != NULL)
 		sendto_one_numeric(source_p, RPL_WHOISCERTFP,

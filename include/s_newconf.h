@@ -120,6 +120,9 @@ struct oper_conf
 	char *host;
 	char *passwd;
 	char *certfp;
+	char *vhost;
+	char *operstring;
+	char *swhois;
 
 	int flags;
 	int umodes;

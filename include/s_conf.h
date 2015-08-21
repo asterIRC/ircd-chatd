@@ -63,6 +63,7 @@ struct ConfItem
 	{
 		char *name;	/* IRC name, nick, server name, or original u@h */
 		const char *oper;
+		char *name2;		/* IRC name, nick, server name, or original u@h */
 	} info;
 	char *host;		/* host part of user@host */
 	char *passwd;		/* doubles as kline reason *ugh* */
@@ -113,7 +114,7 @@ struct ConfItem
 #define CONF_FLAGS_EXTEND_CHANS		0x00080000
 #define CONF_FLAGS_ENCRYPTED            0x00100000
 #define CONF_FLAGS_EXEMPTDNSBL		0x00200000
-
+#define CONF_FLAGS_SPOOF_WEBCHAT        0x00400000
 
 /* Macros for struct ConfItem */
 #define IsConfBan(x)		((x)->status & (CONF_KILL|CONF_XLINE|CONF_DLINE|\
@@ -128,6 +129,7 @@ struct ConfItem
 #define IsConfExemptShide(x)	((x)->flags & CONF_FLAGS_EXEMPTSHIDE)
 #define IsConfExemptJupe(x)	((x)->flags & CONF_FLAGS_EXEMPTJUPE)
 #define IsConfExemptResv(x)	((x)->flags & CONF_FLAGS_EXEMPTRESV)
+#define IsConfDoSpoofWebchat(x) ((x)->flags & CONF_FLAGS_SPOOF_WEBCHAT)
 #define IsConfDoSpoofIp(x)      ((x)->flags & CONF_FLAGS_SPOOF_IP)
 #define IsConfSpoofNotice(x)    ((x)->flags & CONF_FLAGS_SPOOF_NOTICE)
 #define IsConfEncrypted(x)      ((x)->flags & CONF_FLAGS_ENCRYPTED)

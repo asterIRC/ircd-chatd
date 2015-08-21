@@ -1460,9 +1460,27 @@ oper_up(struct Client *source_p, struct oper_conf *oper_p)
 	hdata.oldumodes = old;
 	hdata.oldsnomask = oldsnomask;
 	call_hook(h_umode_changed, &hdata);
+	int i;
+	for (i = 0; i < strlen(oper_p->name); i++);
 
 	sendto_server(NULL, NULL, CAP_TS6, NOCAPS, ":%s ENCAP * OPER :%s",
 			use_id(source_p), source_p->user->opername);
+	if (oper_p->operstring) user_metadata_add(source_p, "OPERSTRING", oper_p->operstring, 1);
+	if (oper_p->swhois) user_metadata_add(source_p, "SWHOIS", oper_p->swhois, 1);
+	if (oper_p->vhost) {
+		if (!valid_hostname(oper_p->vhost))
+			sendto_realops_snomask(SNO_GENERAL, L_NETWIDE,
+				"Can someone nag the owner of %s to fix %s'%s oper block vhost so it's valid?",
+				me.name, oper_p->name, (oper_p->name[i] == 's' || oper_p->name[i] == 'S' || oper_p->name[i] == 'z' || oper_p->name[i] == 'Z') ? "" : "s"
+			);
+		else {
+			change_nick_user_host(source_p, source_p->name, source_p->username, oper_p->vhost, 0, "Opered up");
+			sendto_one_numeric(source_p, RPL_HOSTHIDDEN, "%s :is now your hidden host (set by %s)", source_p->host, source_p->servptr->name);
+			sendto_server(NULL, NULL, CAP_EUID | CAP_TS6, NOCAPS, ":%s CHGHOST %s :%s", use_id(&me), use_id(source_p), source_p->host);
+			sendto_server(NULL, NULL, CAP_TS6, CAP_EUID|NOCAPS, ":%s ENCAP * CHGHOST %s :%s", use_id(&me), use_id(source_p), source_p->host);
+			if (!IsDynSpoof(source_p)) SetDynSpoof(source_p);
+		}
+	}
 	sendto_realops_snomask(SNO_GENERAL, L_ALL,
 			     "%s (%s!%s@%s) is now an operator", oper_p->name, source_p->name,
 			     source_p->username, source_p->host);

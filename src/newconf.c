@@ -592,6 +592,27 @@ conf_end_oper(struct TopConf *tc)
 		yy_tmpoper->snomask = yy_oper->snomask;
 		yy_tmpoper->privset = yy_oper->privset;
 
+		if(!EmptyString(yy_oper->vhost)) {
+			if(valid_hostname(yy_oper->vhost))
+				yy_tmpoper->vhost = rb_strdup(yy_oper->vhost);
+			else if(!EmptyString(yy_oper->vhost))
+				conf_report_error("Ignoring vhost setting for oper %s -- invalid hostmask.", yy_oper->name);
+		}
+
+		if(!EmptyString(yy_oper->swhois)) {
+			if(strlen(yy_oper->swhois)<400)
+				yy_tmpoper->swhois = rb_strdup(yy_oper->swhois);
+			else if(!EmptyString(yy_oper->swhois))
+				conf_report_error("Ignoring swhois setting for oper %s -- swhois too long.", yy_oper->name);
+		}
+
+		if(!EmptyString(yy_oper->operstring)) {
+			if(strlen(yy_oper->operstring)<400)
+				yy_tmpoper->operstring = rb_strdup(yy_oper->operstring);
+			else if(!EmptyString(yy_oper->operstring))
+				conf_report_error("Ignoring operstring setting for oper %s -- operstring too long.", yy_oper->name);
+		}
+
 #ifdef HAVE_LIBCRYPTO
 		if(yy_oper->rsa_pubkey_file)
 		{
@@ -648,6 +669,30 @@ conf_set_oper_fingerprint(void *data)
 	if (yy_oper->certfp)
 		rb_free(yy_oper->certfp);
 	yy_oper->certfp = rb_strdup((char *) data);
+}
+
+static void
+conf_set_oper_swhois(void *data)
+{
+	if (yy_oper->swhois)
+		rb_free(yy_oper->swhois);
+	yy_oper->swhois = rb_strdup((char *) data);
+}
+
+static void
+conf_set_oper_operstring(void *data)
+{
+	if (yy_oper->operstring)
+		rb_free(yy_oper->operstring);
+	yy_oper->operstring = rb_strdup((char *) data);
+}
+
+static void
+conf_set_oper_vhost(void *data)
+{
+	if (yy_oper->vhost)
+		rb_free(yy_oper->vhost);
+	yy_oper->vhost = rb_strdup((char *) data);
 }
 
 static void
@@ -1152,6 +1197,32 @@ conf_set_auth_spoof(void *data)
 	rb_free(yy_aconf->info.name);
 	yy_aconf->info.name = rb_strdup(data);
 	yy_aconf->flags |= CONF_FLAGS_SPOOF_IP;
+}
+
+static void
+conf_set_auth_webircname(void *data)
+{
+	char *p;
+	char *user = NULL;
+	char *host = NULL;
+
+	host = data;
+
+	if(EmptyString(host))
+	{
+		conf_report_error("Warning -- webircname empty.");
+		return;
+	}
+
+	if(strlen(host) > HOSTLEN)
+	{
+		conf_report_error("Warning -- webircname length invalid.");
+		return;
+	}
+
+	rb_free(yy_aconf->info.name2);
+	yy_aconf->info.name2 = rb_strdup(data);
+	yy_aconf->flags |= CONF_FLAGS_SPOOF_WEBCHAT;
 }
 
 static void
@@ -2134,6 +2205,9 @@ static struct ConfEntry conf_operator_table[] =
 	{ "umodes",	CF_STRING | CF_FLIST, conf_set_oper_umodes,	0, NULL },
 	{ "privset",	CF_QSTRING, conf_set_oper_privset,	0, NULL },
 	{ "snomask",    CF_QSTRING, conf_set_oper_snomask,      0, NULL },
+	{ "swhois",     CF_QSTRING, conf_set_oper_swhois,       0, NULL },
+	{ "operstring", CF_QSTRING, conf_set_oper_operstring,   0, NULL },
+	{ "vhost",      CF_QSTRING, conf_set_oper_vhost,        0, NULL },
 	{ "user",	CF_QSTRING, conf_set_oper_user,		0, NULL },
 	{ "password",	CF_QSTRING, conf_set_oper_password,	0, NULL },
 	{ "fingerprint",	CF_QSTRING, conf_set_oper_fingerprint,	0, NULL },
@@ -2171,6 +2245,7 @@ static struct ConfEntry conf_auth_table[] =
 	{ "password",	CF_QSTRING, conf_set_auth_passwd,	0, NULL },
 	{ "class",	CF_QSTRING, conf_set_auth_class,	0, NULL },
 	{ "spoof",	CF_QSTRING, conf_set_auth_spoof,	0, NULL },
+	{ "webircname",	CF_QSTRING, conf_set_auth_webircname,	0, NULL },
 	{ "redirserv",	CF_QSTRING, conf_set_auth_redir_serv,	0, NULL },
 	{ "redirport",	CF_INT,     conf_set_auth_redir_port,	0, NULL },
 	{ "flags",	CF_STRING | CF_FLIST, conf_set_auth_flags,	0, NULL },

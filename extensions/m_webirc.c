@@ -91,7 +91,7 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
 				client_p->localClient->ip.ss_family, NULL);
 	if (aconf == NULL || !(aconf->status & CONF_CLIENT))
 		return 0;
-	if (!IsConfDoSpoofIp(aconf) || irccmp(aconf->info.name, "webirc."))
+	if (!IsConfDoSpoofWebchat(aconf))
 	{
 		/* XXX */
 		sendto_one(source_p, "NOTICE * :Not a CGI:IRC auth block");
@@ -125,6 +125,8 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
 		rb_strlcpy(source_p->host, source_p->sockhost, sizeof(source_p->host));
 	
 	rb_inet_pton_sock(parv[4], (struct sockaddr *)&source_p->localClient->ip);
+
+	user_metadata_add(source_p, "WEBIRCNAME", rb_strdup(aconf->info.name2), 0);
 
 	/* Check dlines now, klines will be checked on registration */
 	if((aconf = find_dline((struct sockaddr *)&source_p->localClient->ip, 
