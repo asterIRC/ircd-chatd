@@ -677,9 +677,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 				     source_p->name, chptr->chname, (long) oldts);
 	}
 #endif
-	sendto_realops_snomask(SNO_GENERAL, L_ALL,
-			     "Received SJOIN :%s NJOIN %s :%s",
-			     source_p->name, chptr->chname, parv[parc-1]);
 
 	if(isnew)
 		chptr->channelts = newts;
