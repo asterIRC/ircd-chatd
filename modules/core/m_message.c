@@ -444,23 +444,6 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 			handle_special(p_or_n, command, client_p, source_p, nick, text);
 			continue;
 		}
-
-		/* no matching anything found - error if not NOTICE */
-		if(p_or_n != NOTICE && strtoul(nick, NULL, 10) == 0)
-		{
-			/* dont give this numeric when source is local,
-			 * because its misleading --anfl
-			 */
-			if(!MyClient(source_p) && IsDigit(*nick))
-				sendto_one(source_p, ":%s %d %s * :Target left IRC. "
-					   "Failed to deliver: [%.20s]",
-					   get_id(&me, source_p), ERR_NOSUCHNICK,
-					   get_id(source_p, source_p), text);
-			else
-				sendto_one_numeric(source_p, ERR_NOSUCHNICK,
-						   form_str(ERR_NOSUCHNICK), nick);
-		}
-
 	}
 	return (1);
 }
