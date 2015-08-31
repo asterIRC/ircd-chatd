@@ -271,7 +271,7 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		 * here plain old channel msg?
 		 */
 
-		if(IsChanPrefix(*nick))
+		if(IsChannelName(nick))
 		{
 			/* ignore send of local channel to a server (should not happen) */
 			if(IsServer(client_p) && *nick == '&')
