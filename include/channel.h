@@ -221,7 +221,7 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define IsMember(who, chan) ((who && who->user && \
                 find_channel_membership(chan, who)) ? 1 : 0)
 
-#define IsChannelName(name) ((name) && (*(name) == '#' || *(name) == '&' || *(name) == '"' || (strlen(name) != 9 && strtoul(name, NULL, 10) != 0)))
+#define IsChannelName(name) ((name) && (*(name) == '#' || *(name) == '&' || *(name) == '"' || (strlen(name) != 9 && isnumonly(name) && strtoul(name, NULL, 10) != 0)))
 
 /* extban function results */
 #define EXTBAN_INVALID -1  /* invalid mask, false even if negated */
@@ -241,6 +241,7 @@ extern void destroy_channel(struct Channel *);
 
 extern int can_send(struct Channel *chptr, struct Client *who, 
 		    struct membership *);
+extern int isnumonly(const char *);
 extern int flood_attack_channel(int p_or_n, struct Client *source_p,
 				struct Channel *chptr, char *chname);
 extern int is_banned(struct Channel *chptr, struct Client *who,

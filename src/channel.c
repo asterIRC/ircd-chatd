@@ -66,6 +66,13 @@ static int h_can_join;
 static int h_can_send;
 int h_get_channel_access;
 
+int isnumonly(const char *s)
+{
+	while (*s)
+		if (!IsDigit(*s++)) return 0;
+	return 1;
+}
+
 /* init_channels()
  *
  * input	-
