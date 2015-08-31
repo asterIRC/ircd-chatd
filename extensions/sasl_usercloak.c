@@ -44,7 +44,7 @@ check_new_user(void *vdata)
 	if (EmptyString(source_p->user->suser))
 		return;
 
-	char *accountpart = strstr(source_p->orighost, "account");
+	char *accountpart = strstr(source_p->orighost, "//account//");
 	if (!accountpart)
 		return;
 
