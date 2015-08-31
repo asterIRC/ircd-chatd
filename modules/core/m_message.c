@@ -413,7 +413,7 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 			continue;
 		}
 
-		if(IsServer(client_p) && *nick == '=' && nick[1] == '#')
+		if(IsServer(client_p) && *nick == '=' && IsChannelName((nick + 1)))
 		{
 			nick++;
 			if((chptr = find_channel(nick)) != NULL)
@@ -451,7 +451,7 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 			/* dont give this numeric when source is local,
 			 * because its misleading --anfl
 			 */
-			if(!MyClient(source_p) && IsDigit(*nick))
+			if(!MyClient(source_p) && IsDigit(*nick) && strlen(nick) == 9)
 				sendto_one(source_p, ":%s %d %s * :Target left IRC. "
 					   "Failed to deliver: [%.20s]",
 					   get_id(&me, source_p), ERR_NOSUCHNICK,
