@@ -422,7 +422,7 @@ sendto_server(struct Client *one, struct Channel *chptr, unsigned long caps,
 	if(rb_dlink_list_length(&serv_list) == 0)
 		return;
 
-	if(chptr != NULL && *chptr->chname != '#')
+	if(chptr != NULL && *chptr->chname == '&')
 			return;
 
 	rb_linebuf_newbuf(&linebuf);

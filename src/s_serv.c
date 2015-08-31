@@ -625,7 +625,7 @@ burst_TS6(struct Client *client_p)
 	{
 		chptr = ptr->data;
 
-		if(*chptr->chname != '#')
+		if(*chptr->chname == '&') // Fix for the drama surrounding numberchannels being local.
 			continue;
 
 		cur_len = mlen = rb_sprintf(buf, ":%s SJOIN %ld %s %s :", me.id,
