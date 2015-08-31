@@ -446,7 +446,7 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		}
 
 		/* no matching anything found - error if not NOTICE */
-		if(p_or_n != NOTICE && !IsChannelName(nick))
+		if(p_or_n != NOTICE && strtoul(nick, NULL, 10) == 0)
 		{
 			/* dont give this numeric when source is local,
 			 * because its misleading --anfl
