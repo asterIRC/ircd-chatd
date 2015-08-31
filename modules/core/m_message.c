@@ -415,7 +415,7 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 
 		if(IsServer(client_p) && *nick == '=' && IsChannelName((nick + 1)))
 		{
-			nick++;
+			*nick++;
 			if((chptr = find_channel(nick)) != NULL)
 			{
 				if(!duplicate_ptr(chptr))
@@ -446,12 +446,12 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		}
 
 		/* no matching anything found - error if not NOTICE */
-		if(p_or_n != NOTICE)
+		if(p_or_n != NOTICE && !IsChannelName(nick))
 		{
 			/* dont give this numeric when source is local,
 			 * because its misleading --anfl
 			 */
-			if(!MyClient(source_p) && IsDigit(*nick) && strlen(nick) == 9)
+			if(!MyClient(source_p) && IsDigit(*nick))
 				sendto_one(source_p, ":%s %d %s * :Target left IRC. "
 					   "Failed to deliver: [%.20s]",
 					   get_id(&me, source_p), ERR_NOSUCHNICK,
