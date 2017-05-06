@@ -79,7 +79,6 @@ comment   #.*
 qstring   \"[^\"\n]*[\"\n]
 string    [a-zA-Z_\~\:][a-zA-Z0-9_\:]*
 include   \.include{ws}(\<.*\>|\".*\")
-cppcmnt   //
 
 %%
 {include}       { cinclude(); }
@@ -88,7 +87,6 @@ cppcmnt   //
 
 {ws}            ;
 {comment}       { hashcomment(); }
-{cppcmnt}       { hashcomment(); }
 
 {digit}+        { yylval.number = atoi(yytext); return NUMBER; }
 
