@@ -87,6 +87,7 @@ include   \.include{ws}(\<.*\>|\".*\")
 
 {ws}            ;
 {comment}       { hashcomment(); }
+//.*            { hashcomment(); }
 
 {digit}+        { yylval.number = atoi(yytext); return NUMBER; }
 
