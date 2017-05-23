@@ -449,9 +449,9 @@ struct ListClient
 
 /* Is t an oper, and is s allowed to know this? */
 #define SeesOpers(s)		(IsOper(s) || !ConfigFileEntry.operhide)
-#define SeesOper(s, t)		(IsOper(t) && (SeesOpers(s) || ((s) == (t))))
-#define SeesHelper(s, t)	(IsHelper(t) && (SeesOpers(s) || ((s) == (t))))
-#define SeesAnyOper(s, t)	(IsAnyOper(t) && (SeesOpers(s) || ((s) == (t))))
+#define SeesOper(s, t)		(SeesOpers(s) || ((s) == (t)))
+#define SeesHelper(s, t)	(SeesOpers(s) || ((s) == (t)))
+#define SeesAnyOper(s, t)	(SeesOpers(s) || ((s) == (t)))
 
 
 /* overflow flags */
