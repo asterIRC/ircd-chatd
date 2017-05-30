@@ -608,7 +608,7 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 					continue;
 
 				if (delayed && !is_delayed(msptr)) continue; // Showing delayed users; this user isn't delayed.
-				if (!delayed && is_delayed(msptr)) continue; // Showing undelayed users; this user is delayed.
+				if (client_p != target_p && !delayed && is_delayed(msptr)) continue; // Showing undelayed users; this user is delayed.
 
 				/* space, possible "@+" prefix */
 				if(cur_len + strlen(target_p->name) + 3 >= BUFSIZE - 3)
