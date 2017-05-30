@@ -376,7 +376,7 @@ static  const char *  replies[] = {
 /* 352 RPL_WHOREPLY, */         ":%s 352 %s %s %s %s %s %s %s :%d %s",
 /* 353 RPL_NAMREPLY, */         ":%s 353 %s %s %s :",
 /* 354 RPL_WHOSPCRPL */         NULL,
-/* 355 */       NULL,
+/* 355 RPL_DELNAMREPLY*/       ":%s 355 %s %s %s :",
 /* 356 */       NULL,
 /* 357 */       NULL,
 /* 358 */       NULL,

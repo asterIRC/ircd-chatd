@@ -587,7 +587,7 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 		} else {
 			is_member = IsMember(client_p, chptr);
 
-			cur_len = mlen = rb_sprintf(lbuf, form_str(RPL_NAMREPLY),
+			cur_len = mlen = rb_sprintf(lbuf, delayed ? form_str(RPL_DELNAMREPLY) : form_str(RPL_NAMREPLY),
 						    me.name, client_p->name,
 						    channel_pub_or_secret(chptr), chptr->chname);
 
