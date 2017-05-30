@@ -293,12 +293,6 @@ find_channel_status(struct membership *msptr, int combine)
 
 	p = buffer;
 
-	if(is_delayed(msptr)) {
-		if(!combine)
-			return "<";
-		*p++ = '<';
-	}
-
 	if(is_bop(msptr))
 	{
 		if(!EmptyString(ConfigChannel.qprefix)) {

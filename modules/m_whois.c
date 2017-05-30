@@ -288,7 +288,8 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 					t = buf + mlen;
 				}
 
-				tlen = rb_sprintf(t, "%s%s%s ",
+				tlen = rb_sprintf(t, "%s%s%s%s ",
+						is_delayed(msptr) ? "<" : "",
 						visible ? "" : "!",
 						find_channel_status(msptr, 1),
 						chptr->chname);
