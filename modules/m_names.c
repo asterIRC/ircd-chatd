@@ -151,7 +151,7 @@ names_global(struct Client *source_p)
 	RB_DLINK_FOREACH(ptr, global_channel_list.head)
 	{
 		chptr = ptr->data;
-		channel_member_names(chptr, source_p, 0);
+		channel_member_names(chptr, source_p, 0, 0);
 	}
 	cur_len = mlen = rb_sprintf(buf, form_str(RPL_NAMREPLY), 
 				    me.name, source_p->name, "*", "*");

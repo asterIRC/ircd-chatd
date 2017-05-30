@@ -409,7 +409,7 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 				   chptr->topic_info, chptr->topic_time);
 		}
 
-		channel_member_names(chptr, source_p, 1);
+		channel_member_names(chptr, source_p, 1, 0);
 
 		hook_info.client = source_p;
 		hook_info.chptr = chptr;
