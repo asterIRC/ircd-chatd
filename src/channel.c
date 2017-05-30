@@ -63,6 +63,7 @@ static struct ChCapCombo chcap_combos[NCHCAP_COMBOS];
 static void free_topic(struct Channel *chptr);
 
 static int h_can_join;
+static int h_join_cognito;
 static int h_can_send;
 int h_get_channel_access;
 
@@ -88,6 +89,7 @@ init_channels(void)
 	member_heap = rb_bh_create(sizeof(struct membership), MEMBER_HEAP_SIZE, "member_heap");
 
 	h_can_join = register_hook("can_join");
+	h_join_cognito = register_hook("join_visible");
 	h_can_send = register_hook("can_send");
 	h_get_channel_access = register_hook("get_channel_access");
 }
@@ -145,15 +147,41 @@ free_ban(struct Ban *bptr)
  * side effects - none
  */
 void
-send_channel_join(struct Channel *chptr, struct Client *client_p)
+send_channel_join(int isnew, struct Channel *chptr, struct Client *client_p)
 {
 	if (!IsClient(client_p))
 		return;
 
-	sendto_channel_local_with_capability(ALL_MEMBERS, NOCAPS, CLICAP_EXTENDED_JOIN, chptr, ":%s!%s@%s JOIN %s",
+	// XXX -- this is where our "join_visible" hook comes up.
+	// h_join_cognito is called "join_visible"
+	hook_data_channel moduledata;
+
+	moduledata.client = client_p;
+	moduledata.chptr = chptr;
+	moduledata.approved = 0;
+	// XXX XXX -- 0 is truey, which is /very/ bizarre. -- janicez
+	call_hook(h_join_cognito, &moduledata);
+
+	struct membership *msptr = find_channel_membership(chptr, client_p);
+	if (msptr == NULL) return; // Bail on this before it gets any worse... :\ XXX probably not necessary
+
+	if (MyClient(client_p) && isnew) {
+		if (IsCapable(client_p, CLICAP_EXTENDED_JOIN))
+			sendto_one(client_p, ":%s!%s@%s JOIN %s %s :%s",
+					     client_p->name, client_p->username, client_p->host, chptr->chname,
+					     EmptyString(client_p->user->suser) ? "*" : client_p->user->suser,
+					     client_p->info);
+		else
+			sendto_one(client_p, ":%s!%s@%s JOIN %s",
+					     client_p->name, client_p->username, client_p->host, chptr->chname);
+	}
+
+	if (is_delayed(msptr) || !!moduledata.approved) return; // probably auditorium
+
+	sendto_channel_local_with_capability_butone(client_p, ALL_MEMBERS, NOCAPS, CLICAP_EXTENDED_JOIN, chptr, ":%s!%s@%s JOIN %s",
 					     client_p->name, client_p->username, client_p->host, chptr->chname);
 
-	sendto_channel_local_with_capability(ALL_MEMBERS, CLICAP_EXTENDED_JOIN, NOCAPS, chptr, ":%s!%s@%s JOIN %s %s :%s",
+	sendto_channel_local_with_capability_butone(client_p, ALL_MEMBERS, CLICAP_EXTENDED_JOIN, NOCAPS, chptr, ":%s!%s@%s JOIN %s %s :%s",
 					     client_p->name, client_p->username, client_p->host, chptr->chname,
 					     EmptyString(client_p->user->suser) ? "*" : client_p->user->suser,
 					     client_p->info);
@@ -264,6 +292,12 @@ find_channel_status(struct membership *msptr, int combine)
 	char *p;
 
 	p = buffer;
+
+	if(is_delayed(msptr)) {
+		if(!combine)
+			return "<";
+		*p++ = '<';
+	}
 
 	if(is_bop(msptr))
 	{
@@ -534,9 +568,10 @@ channel_pub_or_secret(struct Channel *chptr)
  * side effects - client is given list of users on channel
  */
 void
-channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eon)
+channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eon, int delayed)
 {
 	struct membership *msptr;
+	struct membership *mptr;
 	struct Client *target_p;
 	rb_dlink_node *ptr;
 	char lbuf[BUFSIZE];
@@ -549,37 +584,47 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 
 	if(ShowChannel(client_p, chptr))
 	{
-		is_member = IsMember(client_p, chptr);
+		mptr = find_channel_membership(chptr, client_p);
+		int any_op = (mptr != NULL) ? is_any_op(mptr) : 0;
+		if (AnonChannel(chptr) && !any_op) {
+			// Just anonymise it.
+			sendto_one(client_p, ":%s 353 %s %s %s :-anonymous", me.name,
+			client_p->name, channel_pub_or_secret(chptr), chptr->chname);
+		} else {
+			is_member = IsMember(client_p, chptr);
 
-		cur_len = mlen = rb_sprintf(lbuf, form_str(RPL_NAMREPLY),
-					    me.name, client_p->name,
-					    channel_pub_or_secret(chptr), chptr->chname);
+			cur_len = mlen = rb_sprintf(lbuf, form_str(RPL_NAMREPLY),
+						    me.name, client_p->name,
+						    channel_pub_or_secret(chptr), chptr->chname);
 
-		t = lbuf + cur_len;
+			t = lbuf + cur_len;
 
-		RB_DLINK_FOREACH(ptr, chptr->members.head)
-		{
-			msptr = ptr->data;
-			target_p = msptr->client_p;
-
-			if(IsInvisible(target_p) && !is_member)
-				continue;
-
-			/* space, possible "@+" prefix */
-			if(cur_len + strlen(target_p->name) + 3 >= BUFSIZE - 3)
+			RB_DLINK_FOREACH(ptr, chptr->members.head)
 			{
-				*(t - 1) = '\0';
-				sendto_one(client_p, "%s", lbuf);
-				cur_len = mlen;
-				t = lbuf + mlen;
+				msptr = ptr->data;
+				target_p = msptr->client_p;
+
+				if(IsInvisible(target_p) && !is_member)
+					continue;
+
+				if (delayed && !is_delayed(msptr)) continue; // Showing delayed users; this user isn't delayed.
+				if (!delayed && is_delayed(msptr)) continue; // Showing undelayed users; this user is delayed.
+
+				/* space, possible "@+" prefix */
+				if(cur_len + strlen(target_p->name) + 3 >= BUFSIZE - 3)
+				{
+					*(t - 1) = '\0';
+					sendto_one(client_p, "%s", lbuf);
+					cur_len = mlen;
+					t = lbuf + mlen;
+				}
+
+				tlen = rb_sprintf(t, "%s%s ", find_channel_status(msptr, stack),
+						  target_p->name);
+
+				cur_len += tlen;
+				t += tlen;
 			}
-
-			tlen = rb_sprintf(t, "%s%s ", find_channel_status(msptr, stack),
-					  target_p->name);
-
-			cur_len += tlen;
-			t += tlen;
-		}
 
 		/* The old behaviour here was to always output our buffer,
 		 * even if there are no clients we can show.  This happens
@@ -588,11 +633,12 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 		 * reason for keeping that behaviour, as it just wastes
 		 * bandwidth.  --anfl
 		 */
-		if(cur_len != mlen)
-		{
-			*(t - 1) = '\0';
-			sendto_one(client_p, "%s", lbuf);
-		}
+			if(cur_len != mlen)
+			{
+				*(t - 1) = '\0';
+				sendto_one(client_p, "%s", lbuf);
+			}
+		} // else (if AnonChannel)
 	}
 
 	if(show_eon)
@@ -1596,17 +1642,19 @@ resv_chan_forcepart(const char *name, const char *reason, int temp_time)
 			sendto_server(target_p, chptr, CAP_TS6, NOCAPS,
 			              ":%s PART %s", target_p->id, chptr->chname);
 
-			sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :%s",
+			sendto_one(target_p, ":%s!%s@%s PART %s :%s", target_p->name, target_p->username, target_p->host, chptr->chname, target_p->name);
+
+			if (!is_delayed(msptr)) sendto_channel_local_butone(target_p, ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :%s",
 			                     target_p->name, target_p->username,
 			                     target_p->host, chptr->chname, target_p->name);
 
-			remove_user_from_channel(msptr);
-
 			/* notify opers & user they were removed from the channel */
 			sendto_realops_snomask(SNO_GENERAL, L_ALL,
-			                     "Forced PART for %s!%s@%s from %s (%s)",
+			                     "Forced PART for %s!%s@%s from %s (%s)%s",
 			                     target_p->name, target_p->username, 
-			                     target_p->host, name, reason);
+			                     target_p->host, name, reason, is_delayed(msptr) ? " (user was delayed entry; may not have been shown leaving)" : "");
+
+			remove_user_from_channel(msptr);
 
 			if(temp_time > 0)
 				sendto_one_notice(target_p, ":*** Channel %s is temporarily unavailable on this server.",

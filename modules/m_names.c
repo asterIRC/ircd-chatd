@@ -65,7 +65,23 @@ m_names(struct Client *client_p, struct Client *source_p, int parc, const char *
 	static time_t last_used = 0;
 	struct Channel *chptr = NULL;
 	char *s;
+	int delay = 0;
 
+	if(parc > 2 && !EmptyString(parv[2]))
+	{
+		if (parv[2][0] == '-') {
+			switch (parv[2][1])
+				case 'D':
+				case 'd':
+				case 'H':
+				case 'h':
+				case 'J':
+				case 'j': delay = 1;
+					break;
+				default:
+					break;
+		}
+	}
 	if(parc > 1 && !EmptyString(parv[1]))
 	{
 		char *p = LOCAL_COPY(parv[1]);
@@ -81,7 +97,7 @@ m_names(struct Client *client_p, struct Client *source_p, int parc, const char *
 		}
 
 		if((chptr = find_channel(p)) != NULL)
-			channel_member_names(chptr, source_p, 1);
+			channel_member_names(chptr, source_p, 1, delay);
 		else
 			sendto_one(source_p, form_str(RPL_ENDOFNAMES), 
 				   me.name, source_p->name, p);

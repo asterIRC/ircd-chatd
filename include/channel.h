@@ -158,6 +158,7 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define CHFL_SOP	     	0x0080	/* Channel operator */
 #define CHFL_QOP	     	0x0200	/* Channel operator */
 #define CHFL_BOP	     	0x0400	/* Channel operator */
+#define CHFL_DELAYED    	0x0800	/* Join delayed -- do not propagate nor show to clients because this mode has no letter. Delays may speak if not otherwise prohibited. */
 
 #define CHFL_BANNED		0x000008  /* cached as banned */
 #define CHFL_QUIETED		0x000010  /* cached as being +q victim */
@@ -175,7 +176,9 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define is_botop(x)	((x) && ((x)->flags & CHFL_BOP))
 #define is_bop(x)	((x) && ((x)->flags & CHFL_BOP))
 #define is_voiced(x)	((x) && (x)->flags & CHFL_VOICE)
+#define is_delayed(x)	((x) && (x)->flags & CHFL_DELAYED)
 #define is_chanop_voiced(x) ((x) && (x)->flags & (CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP|CHFL_VOICE))
+#define is_any_op(x) ((x) && (x)->flags & (CHFL_HALFOP|CHFL_SUPEROP|CHFL_QOP|CHFL_BOP|CHFL_CHANOP))
 #define can_send_banned(x) ((x) && (x)->flags & (CHFL_BANNED|CHFL_QUIETED))
 
 /* channel modes ONLY */
@@ -197,6 +200,11 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define MODE_NOCTCP     0x08000  /* Block CTCPs directed to this channel */
 #define MODE_NONOTICE   0x10000  /* Block NOTICEs directed to this channel */
 #define MODE_REGCHAN    0x20000  /* Channel is registered and will show up in /CLIST if that ever gets implemented. */
+#define MODE_ANONMSGS   0x40000  /* Messages sent to channel will not carry the source of the message. Only chanops will receive join, mode, and part messages, and
+                                    only chanops will be privy to the nicklist. Chanops will receive the source of the message.
+                                    --ellenor@umbrellix.net */
+#define MODE_DELAYJOIN	0x80000  // Joins while the mode is set will be delayed until an operation is committed. If a delayed
+				 // user parts before joining, they are seen as having never joined.
 
 #define CHFL_BAN        0x10000000	/* ban channel flag */
 #define CHFL_EXCEPTION  0x20000000	/* exception to ban channel flag */
@@ -212,7 +220,7 @@ typedef int (*ExtbanFunc)(const char *data, struct Client *client_p,
 #define HiddenChannel(x)        ((x) && ((x)->mode.mode & MODE_PRIVATE))
 #define PubChannel(x)           ((!x) || ((x)->mode.mode &\
                                  (MODE_PRIVATE | MODE_SECRET)) == 0)
-
+#define AnonChannel(x)          ((x) && ((x)->mode.mode & MODE_ANONMSGS))
 /* channel visible */
 #define ShowChannel(v,c)        (PubChannel(c) || IsMember((v),(c)))
 /* user visible in channel */
@@ -266,7 +274,7 @@ extern int check_channel_name(const char *name);
 extern int is_better_op(struct membership *,struct membership *);
 
 extern void channel_member_names(struct Channel *chptr, struct Client *,
-				 int show_eon);
+				 int show_eon, int delayed);
 
 extern void del_invite(struct Channel *chptr, struct Client *who);
 
@@ -309,7 +317,7 @@ const char * get_extban_string(void);
 
 extern int get_channel_access(struct Client *source_p, struct membership *msptr);
 
-extern void send_channel_join(struct Channel *chptr, struct Client *client_p);
+extern void send_channel_join(int isnew, struct Channel *chptr, struct Client *client_p);
 
 extern struct Metadata *channel_metadata_add(struct Channel *target, const char *name, const char *value, int propegate);
 extern struct Metadata *channel_metadata_time_add(struct Channel *target, const char *name, time_t timevalue, const char *value);

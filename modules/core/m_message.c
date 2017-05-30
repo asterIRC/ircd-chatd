@@ -548,6 +548,13 @@ msg_channel(int p_or_n, const char *command,
 				else if (rb_dlink_list_length(&chptr->locmembers) > (unsigned)(GlobalSetOptions.floodcount / 2))
 					source_p->large_ctcp_sent = rb_current_time();
 			}
+
+			if (is_delayed(msptr)) {
+				// User is member of channel. Undelay them if they can speak.
+				msptr->flags &= ~CHFL_DELAYED;
+				send_channel_join(0, chptr, source_p);
+			}
+
 			sendto_channel_message(client_p, ALL_MEMBERS, source_p, chptr,
 					     command, chptr->chname, "%s", text);
 		}
@@ -574,6 +581,13 @@ msg_channel(int p_or_n, const char *command,
 				else if (rb_dlink_list_length(&chptr->locmembers) > (unsigned)(GlobalSetOptions.floodcount / 2))
 					source_p->large_ctcp_sent = rb_current_time();
 			}
+
+			if (is_delayed(msptr)) {
+				// User is member of channel. Undelay them if they can speak.
+				msptr->flags &= ~CHFL_DELAYED;
+				send_channel_join(0, chptr, source_p);
+			}
+
 			sendto_channel_message(client_p, ALL_MEMBERS, source_p, chptr,
 					command, chptr->chname, "%s", text);
 		}
@@ -591,6 +605,7 @@ msg_channel(int p_or_n, const char *command,
 		}
 		if(!flood_attack_channel(p_or_n, source_p, chptr, chptr->chname))
 		{
+			// Don't undelay them if they're opmodded.
 			sendto_channel_opmod(client_p, source_p, chptr,
 					     command, text);
 		}

@@ -150,6 +150,12 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 		// Since this isn't ircd-seven anymore, we don't strip topic.
 		rb_sprintf(topic_info, "%s!%s@%s",
 				source_p->name, source_p->username, source_p->host);
+		if (msptr->flags & CHFL_DELAYED)
+		{ // He's delayed. Undelay him.
+			msptr->flags &= ~CHFL_DELAYED;
+			send_channel_join(0, chptr, source_p);
+		}
+
 		set_channel_topic(chptr, topic, topic_info, rb_current_time());
 
 		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,

@@ -234,14 +234,20 @@ do_kick(int kick_or_remove, struct Client *client_p, struct Client *source_p, in
 		 */
 		if(kick_or_remove == KICK)
 		{
-			if(IsServer(source_p))
-				sendto_channel_local(ALL_MEMBERS, chptr, ":%s KICK %s %s :%s",
+			if(IsServer(source_p)) {
+				if (!is_delayed(msptr)) sendto_channel_local_butone(who, ALL_MEMBERS, chptr, ":%s KICK %s %s :%s",
 						     source_p->name, name, who->name, comment);
-			else
-				sendto_channel_local(ALL_MEMBERS, chptr,
+				sendto_one(who, ":%s KICK %s %s :%s",
+						     source_p->name, name, who->name, comment);
+			} else {
+				if (!is_delayed(msptr)) sendto_channel_local_butone(who, ALL_MEMBERS, chptr,
 						     ":%s!%s@%s KICK %s %s :%s",
 						     source_p->name, source_p->username,
 						     source_p->host, name, who->name, comment);
+				sendto_one(who, ":%s!%s@%s KICK %s %s :%s",
+						     source_p->name, source_p->username,
+						     source_p->host, name, who->name, comment);
+			}
 
 			sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
 				      ":%s KICK %s %s :%s",
@@ -249,7 +255,9 @@ do_kick(int kick_or_remove, struct Client *client_p, struct Client *source_p, in
 		}
 		else
 		{
-			sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :requested by %s (%s)",
+			if (!is_delayed(msptr)) sendto_channel_local_butone(who, ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :requested by %s (%s)",
+				who->name, who->username, who->host, name, source_p->name, comment);
+			sendto_one(who, ":%s!%s@%s PART %s :requested by %s (%s)",
 				who->name, who->username, who->host, name, source_p->name, comment);
 
 			sendto_server(client_p, chptr, CAP_REMOVE, NOCAPS,

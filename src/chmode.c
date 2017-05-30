@@ -1215,6 +1215,12 @@ chm_owner(struct Client *source_p, struct Channel *chptr,
 
                 mstptr->flags &= ~CHFL_QOP;
         }
+
+	if (mstptr->flags & CHFL_DELAYED)
+	{ // He's delayed. Undelay him.
+		mstptr->flags &= ~CHFL_DELAYED;
+		send_channel_join(0, chptr, targ_p);
+	}
 }
 
 void
@@ -1315,6 +1321,12 @@ chm_ownerbot(struct Client *source_p, struct Channel *chptr,
 
                 mstptr->flags &= ~CHFL_BOP;
         }
+
+	if (mstptr->flags & CHFL_DELAYED)
+	{ // He's delayed. Undelay him.
+		mstptr->flags &= ~CHFL_DELAYED;
+		send_channel_join(0, chptr, targ_p);
+	}
 }
 
 void
@@ -1411,6 +1423,12 @@ chm_admin(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count++].client = targ_p;
 
 		mstptr->flags &= ~CHFL_SOP;
+	}
+
+	if (mstptr->flags & CHFL_DELAYED)
+	{ // He's delayed. Undelay him.
+		mstptr->flags &= ~CHFL_DELAYED;
+		send_channel_join(0, chptr, targ_p);
 	}
 }
 
@@ -1516,6 +1534,12 @@ chm_op(struct Client *source_p, struct Channel *chptr,
 
 		mstptr->flags &= ~CHFL_CHANOP;
 	}
+
+	if (mstptr->flags & CHFL_DELAYED)
+	{ // He's delayed. Undelay him.
+		mstptr->flags &= ~CHFL_DELAYED;
+		send_channel_join(0, chptr, targ_p);
+	}
 }
 
 void
@@ -1620,6 +1644,12 @@ chm_halfop(struct Client *source_p, struct Channel *chptr,
 
 		mstptr->flags &= ~CHFL_HALFOP;
 	}
+
+	if (mstptr->flags & CHFL_DELAYED)
+	{ // He's delayed. Undelay him.
+		mstptr->flags &= ~CHFL_DELAYED;
+		send_channel_join(0, chptr, targ_p);
+	}
 }
 
 void
@@ -1694,6 +1724,12 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count++].client = targ_p;
 
 		mstptr->flags &= ~CHFL_VOICE;
+	}
+
+	if (mstptr->flags & CHFL_DELAYED)
+	{ // He's delayed. Undelay him.
+		mstptr->flags &= ~CHFL_DELAYED;
+		send_channel_join(0, chptr, targ_p);
 	}
 }
 
@@ -2072,10 +2108,10 @@ struct ChannelMode chmode_table[256] =
   {chm_nosuch,  0 },			/* 0x3f */
 
   {chm_nosuch,	0 },			/* @ */
-  {chm_nosuch,	0 },			/* A */
+  {chm_simple,	MODE_ANONMSGS },	/* A */
   {chm_nosuch,	0 },			/* B */
   {chm_simple,	MODE_NOCTCP },		/* C */
-  {chm_nosuch,	0 },			/* D */
+  {chm_simple,	MODE_DELAYJOIN },			/* D */
   {chm_nosuch,	0 },			/* E */
   {chm_simple,	MODE_FREETARGET },	/* F */
   {chm_nosuch,	0 },			/* G */

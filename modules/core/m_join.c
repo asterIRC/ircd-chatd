@@ -340,7 +340,12 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		/* we send the user their join here, because we could have to
 		 * send a mode out next.
 		 */
-		send_channel_join(chptr, source_p);
+		struct membership *msptr = find_channel_membership(chptr, source_p); // at this point a membership is guaranteed.
+		if (chptr->mode.mode & MODE_DELAYJOIN && !(flags & CHFL_CHANOP)) msptr->flags |= CHFL_DELAYED; // user is delayed. this state is stored locally
+		// and should be assumed if the channel is delayed. we don't care about desyncs as long as they don't affect op tracking and delayed isn't
+		// a privilege flag despite being stored in the same mask.
+
+		send_channel_join(1, chptr, source_p);
 
 		/* its a new channel, set +ns and burst. */
 		if(flags & CHFL_CHANOP)
@@ -542,7 +547,7 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
 			chptr->join_delta = rb_current_time();
 		}
 		chptr->join_count++;
-		send_channel_join(chptr, source_p);
+		send_channel_join(1, chptr, source_p);
 	}
 
 	sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
@@ -935,7 +940,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		if(!IsMember(target_p, chptr))
 		{
 			add_user_to_channel(chptr, target_p, fl);
-			send_channel_join(chptr, target_p);
+			send_channel_join(1, chptr, target_p);
 			joins++;
 		}
 
@@ -1421,7 +1426,10 @@ do_join_0(struct Client *client_p, struct Client *source_p)
 		msptr = ptr->data;
 		chptr = msptr->chptr;
 		sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s PART %s :JOIN 0", use_id(source_p), chptr->chname);
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :JOIN 0",
+		sendto_one(source_p, ":%s!%s@%s PART %s :JOIN 0",
+				     source_p->name,
+				     source_p->username, source_p->host, chptr->chname);
+		if (!is_delayed(msptr)) sendto_channel_local_butone(source_p, ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :JOIN 0",
 				     source_p->name,
 				     source_p->username, source_p->host, chptr->chname);
 		remove_user_from_channel(msptr);

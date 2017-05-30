@@ -647,15 +647,20 @@ sendto_channel_message(struct Client *one, int type, struct Client *source_p,
 	va_list args;
 	buf_head_t rb_linebuf_local;
 	buf_head_t rb_linebuf_local_id;
+	buf_head_t rb_linebuf_local_op;
+	buf_head_t rb_linebuf_local_op_id;
 	buf_head_t rb_linebuf_id;
 	struct Client *target_p;
 	struct membership *msptr;
+	//struct membership *srcmsptr;
 	rb_dlink_node *ptr;
 	rb_dlink_node *next_ptr;
 
 	rb_linebuf_newbuf(&rb_linebuf_local);
 	rb_linebuf_newbuf(&rb_linebuf_local_id);
 	rb_linebuf_newbuf(&rb_linebuf_id);
+	rb_linebuf_newbuf(&rb_linebuf_local_op);
+	rb_linebuf_newbuf(&rb_linebuf_local_op_id);
 
 	current_serial++;
 
@@ -663,7 +668,21 @@ sendto_channel_message(struct Client *one, int type, struct Client *source_p,
 	rb_vsnprintf(buf, sizeof(buf), pattern, args);
 	va_end(args);
 
-	if(IsServer(source_p))
+	if(AnonChannel(chptr) && !IsServer(source_p)) {
+		rb_linebuf_putmsg(&rb_linebuf_local, NULL, NULL,
+			       ":-anonymous!anonymous@%s %s %s :%s", me.name, command, target, buf);
+		rb_linebuf_putmsg(&rb_linebuf_local_id, NULL, NULL,
+			       ":-anonymous!anonymous@%s %s %s :%s", me.name, command, target, buf);
+		rb_linebuf_putmsg(&rb_linebuf_local_op, NULL, NULL,
+			       ":%s!%s@%s %s %s :%s",
+			       source_p->name, source_p->username, 
+			       source_p->host, command, target, buf);
+		rb_linebuf_putmsg(&rb_linebuf_local_op_id, NULL, NULL,
+			       ":%s!%s@%s %s %s :%c%s",
+			       source_p->name, source_p->username, 
+			       source_p->host, command, target,
+			       IsIdentifiedMsg(source_p) ? '+' : '-', buf);
+	} else if(IsServer(source_p))
 	{
 		rb_linebuf_putmsg(&rb_linebuf_local, NULL, NULL,
 			       ":%s %s %s :%s", source_p->name, command, target, buf);
@@ -713,13 +732,20 @@ sendto_channel_message(struct Client *one, int type, struct Client *source_p,
 				target_p->from->serial = current_serial;
 			}
 		}
-		else
+		else if (!AnonChannel(chptr))
 			_send_linebuf(target_p,
 				IsCapable(target_p, CLICAP_IDENTIFY_MSG) ? &rb_linebuf_local_id : &rb_linebuf_local);
+		else { // Channel is anonymised - only send sources to operators
+			_send_linebuf(target_p, IsCapable(target_p, CLICAP_IDENTIFY_MSG) ?
+				(is_any_op(msptr) ? &rb_linebuf_local_op_id : &rb_linebuf_local_id)
+				: (is_any_op(msptr) ? &rb_linebuf_local_op : &rb_linebuf_local));
+		}
 	}
 
 	rb_linebuf_donebuf(&rb_linebuf_local);
 	rb_linebuf_donebuf(&rb_linebuf_local_id);
+	rb_linebuf_donebuf(&rb_linebuf_local_op);
+	rb_linebuf_donebuf(&rb_linebuf_local_op_id);
 	rb_linebuf_donebuf(&rb_linebuf_id);
 }
 
@@ -934,6 +960,8 @@ sendto_common_channels_local(struct Client *user, int cap, const char *pattern, 
 			   !IsCapable(target_p, cap))
 				continue;
 
+			if(is_delayed(msptr)) continue;
+
 			target_p->serial = current_serial;
 			send_linebuf(target_p, &linebuf);
 		}
@@ -995,6 +1023,8 @@ sendto_common_channels_local_butone(struct Client *user, int cap, const char *pa
 			   target_p->serial == current_serial ||
 			   !IsCapable(target_p, cap))
 				continue;
+
+			if(is_delayed(msptr)) continue;
 
 			target_p->serial = current_serial;
 			send_linebuf(target_p, &linebuf);
