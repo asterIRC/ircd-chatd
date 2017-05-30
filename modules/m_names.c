@@ -70,7 +70,7 @@ m_names(struct Client *client_p, struct Client *source_p, int parc, const char *
 	if(parc > 2 && !EmptyString(parv[2]))
 	{
 		if (parv[2][0] == '-') {
-			switch (parv[2][1])
+			switch (parv[2][1]) {
 				case 'D':
 				case 'd':
 				case 'H':
@@ -80,6 +80,7 @@ m_names(struct Client *client_p, struct Client *source_p, int parc, const char *
 					break;
 				default:
 					break;
+			}
 		}
 	}
 	if(parc > 1 && !EmptyString(parv[1]))

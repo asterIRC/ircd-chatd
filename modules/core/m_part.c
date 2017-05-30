@@ -136,7 +136,7 @@ part_one_client(struct Client *client_p, struct Client *source_p, char *name, ch
 		}
 		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
 			      ":%s PART %s :%s", use_id(source_p), chptr->chname, reason);
-		if (!is_delayed(msptr)) sendto_channel_local_butone(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :\"%s\"",
+		if (!is_delayed(msptr)) sendto_channel_local_butone(source_p, ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :\"%s\"",
 				     source_p->name, source_p->username,
 				     source_p->host, chptr->chname, reason);
 		sendto_one(source_p, ":%s!%s@%s PART %s :\"%s\"",
@@ -147,7 +147,7 @@ part_one_client(struct Client *client_p, struct Client *source_p, char *name, ch
 	{
 		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
 			      ":%s PART %s", use_id(source_p), chptr->chname);
-		if (!is_delayed(msptr)) sendto_channel_local_butone(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s",
+		if (!is_delayed(msptr)) sendto_channel_local_butone(source_p, ALL_MEMBERS, chptr, ":%s!%s@%s PART %s",
 				     source_p->name, source_p->username,
 				     source_p->host, chptr->chname);
 		sendto_one(source_p, ":%s!%s@%s PART %s",
