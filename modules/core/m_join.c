@@ -547,7 +547,7 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
 			chptr->join_delta = rb_current_time();
 		}
 		struct membership *msptr = find_channel_membership(chptr, source_p); // at this point a membership is guaranteed.
-		if (chptr->mode.mode & MODE_DELAYJOIN && !(flags & CHFL_CHANOP)) msptr->flags |= CHFL_DELAYED; // user is delayed. this state is stored locally
+		if (chptr->mode.mode & MODE_DELAYJOIN) msptr->flags |= CHFL_DELAYED; // user is delayed. this state is stored locally
 		// and should be assumed if the channel is delayed. we don't care about desyncs as long as they don't affect op tracking and delayed isn't
 		// a privilege flag despite being stored in the same mask.
 		chptr->join_count++;
