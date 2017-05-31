@@ -203,7 +203,7 @@ mo_chghost(struct Client *client_p, struct Client *source_p,
 {
 	struct Client *target_p;
 
-	if(HasPrivilege(source_p, "oper:abuse:chghost"))
+	if(!HasPrivilege(source_p, "oper:abuse:chghost"))
 	{
 		sendto_one(source_p, form_str(ERR_NOPRIVS),
 			   me.name, source_p->name, "oper:abuse:chghost");
