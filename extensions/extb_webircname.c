@@ -40,5 +40,5 @@ static int eb_webircname(const char *data, struct Client *client_p,
 		if (!isweb) return EXTBAN_NOMATCH;
 		return !irccmp(data, md->value) ? EXTBAN_MATCH : EXTBAN_NOMATCH;
 	}
-	return isweb?EXTBAN_MATCH:EXTBAN_NOMATCH
+	return isweb?EXTBAN_MATCH:EXTBAN_NOMATCH;
 }
