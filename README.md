@@ -6,7 +6,7 @@ ircd-chatd install howto
     ./configure --prefix=(where IRCd shall be installed to)
     make all install
 
-OR
+on freebsd, last line is
 
     gmake all install
 
