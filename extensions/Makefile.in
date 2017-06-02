@@ -43,6 +43,9 @@ SRCS =                          \
   extb_ssl.c			\
   extb_sctp.c			\
   extb_ssl_fp.c			\
+  extb_webircname.c		\
+  extb_hostmask.c		\
+  extb_combi.c			\
   extb_realname.c		\
   extb_extgecos.c		\
   extb_xascii.c		\
