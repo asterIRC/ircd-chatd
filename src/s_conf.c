@@ -764,7 +764,7 @@ set_default_conf(void)
 	ConfigChannel.max_chans_per_user = 15;
 	ConfigChannel.max_chans_per_user_large = 15;
 	ConfigChannel.automodes = rb_strdup("CTnst");
-	ConfigChannel.autotopic = rb_strdup("Please set a topic.");
+	ConfigChannel.autotopic = rb_strdup("");
 	ConfigChannel.max_bans = 25;
 	ConfigChannel.max_bans = 25;
 	ConfigChannel.max_bans_large = 500;
