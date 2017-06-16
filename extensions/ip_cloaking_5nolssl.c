@@ -80,8 +80,7 @@ DECLARE_MODULE_AV1(ip_cloaking, _modinit, _moddeinit, NULL, NULL,
 static char *
 do_ip_cloak_part(const char *part)
 {
-    unsigned char *hash = rb_malloc(33);
-    memset(&hash, '\0', 33);
+    unsigned char hash[33] = "";
     char *inbuf = rb_strdup(part);
     char buf[33] = "";
     int i;
