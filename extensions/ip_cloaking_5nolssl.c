@@ -62,8 +62,8 @@ _moddeinit(void)
     construct_umodebuf();
 
     remove_top_conf("cloaking");
-    remove_conf_item("cloaking", "secretsalt", CF_QSTRING, conf_set_secretsalt);
-    remove_conf_item("cloaking", "prefix", CF_QSTRING, conf_set_cloakprefix);
+    remove_conf_item("cloaking", "secretsalt");
+    remove_conf_item("cloaking", "prefix");
 }
 
 static void check_umode_change(void *data);
