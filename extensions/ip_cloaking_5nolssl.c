@@ -85,7 +85,7 @@ do_ip_cloak_part(const char *part)
     char *inbuf = rb_strdup(part);
     char buf[33] = "";
     int i;
-    for (i = strlen(part)+1;i!=0;i--) {
+    for (i = strlen(part)+1;i>0;i--) {
         inbuf[i-1] = part[i-1] ^ secretsalt[(i-1)%strlen(secretsalt)];
     }
     // part on secretsalt
