@@ -1,12 +1,15 @@
 /*
  * Charybdis: an advanced ircd
- * ip_cloaking.c: provide user hostname cloaking
+ * ip_cloaking_5nolssl.c: provide user hostname cloaking
  *
  * Written originally by nenolod, altered to use FNV by Elizabeth in 2008
  * altered some more by groente
+ *
+ * Further modified, after initial modification by ellenor to use sha256-hmac,
+ * to use bundled sha256 and thus not depend on openssl/libressl (hence
+ * "nolssl")
  */
 
-#include <openssl/hmac.h>
 #include "stdinc.h"
 #include "modules.h"
 #include "hook.h"
@@ -19,6 +22,8 @@
 #include "s_serv.h"
 #include "numeric.h"
 #include "newconf.h"
+
+#include "modules/sha256.h"
 
 char *secretsalt = "32qwnqoWI@DpMd&w";
 char *cloakprefix = "net/";
@@ -75,10 +80,16 @@ DECLARE_MODULE_AV1(ip_cloaking, _modinit, _moddeinit, NULL, NULL,
 static char *
 do_ip_cloak_part(const char *part)
 {
-    unsigned char *hash;
+    unsigned char *hash = rb_malloc(32);
+    memset(&hash, '\0', 32);
+    char *inbuf = rb_strdup(part);
     char buf[32] = "";
     int i;
-    hash = HMAC(EVP_sha256(), secretsalt, strlen(secretsalt), (unsigned char*)part, strlen(part), NULL, NULL);
+    for (i = strlen(part)+1;i!=0;i--) {
+        inbuf[i-1] = part[i-1] ^ secretsalt[(i-1)%strlen(secretsalt)];
+    }
+    // part on secretsalt
+    sha256_hash(inbuf, hash, 32);
     rb_snprintf(buf, sizeof(buf), "%.2X%.2X%.2X%.2X", hash[2], hash[4], hash[6], hash[8]);
     return rb_strdup(buf);
 }
