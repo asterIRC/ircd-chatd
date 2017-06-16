@@ -58,7 +58,7 @@ SRCS =                          \
   ip_cloaking_3.0.c		\
   ip_cloaking_4.0.c		\
   ip_cloaking_5.c		\
-  ip_cloaking_5_nolssl.c	\
+  ip_cloaking_5nolssl.c	\
   override.c			\
   sno_farconnect.c		\
   sno_globalkline.c		\
