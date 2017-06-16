@@ -196,7 +196,7 @@ do_host_cloak_host(const char *inbuf, char *outbuf)
     char output[HOSTLEN+1];
     int i, j;
 
-    hash = HMAC(EVP_sha256(), secretsalt, strlen(secretsalt), (unsigned char*)inbuf, strlen(inbuf), NULL, NULL);
+    hash = do_ip_cloak_part(inbuf);
 
     output[0]=0;
 
