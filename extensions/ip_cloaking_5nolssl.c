@@ -80,8 +80,8 @@ DECLARE_MODULE_AV1(ip_cloaking, _modinit, _moddeinit, NULL, NULL,
 static char *
 do_ip_cloak_part(const char *part)
 {
-    unsigned char *hash = rb_malloc(32);
-    memset(&hash, '\0', 32);
+    unsigned char *hash = rb_malloc(33);
+    memset(&hash, '\0', 33);
     char *inbuf = rb_strdup(part);
     char buf[32] = "";
     int i;
@@ -89,7 +89,7 @@ do_ip_cloak_part(const char *part)
         inbuf[i-1] = part[i-1] ^ secretsalt[(i-1)%strlen(secretsalt)];
     }
     // part on secretsalt
-    sha256_hash(inbuf, hash, 32);
+    sha256_hash(inbuf, &hash, 32);
     rb_snprintf(buf, sizeof(buf), "%.2X%.2X%.2X%.2X", hash[2], hash[4], hash[6], hash[8]);
     return rb_strdup(buf);
 }
