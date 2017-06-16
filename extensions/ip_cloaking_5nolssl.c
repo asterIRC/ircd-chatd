@@ -83,7 +83,7 @@ do_ip_cloak_part(const char *part)
     unsigned char *hash = rb_malloc(33);
     memset(&hash, '\0', 33);
     char *inbuf = rb_strdup(part);
-    char buf[32] = "";
+    char buf[33] = "";
     int i;
     for (i = strlen(part)+1;i!=0;i--) {
         inbuf[i-1] = part[i-1] ^ secretsalt[(i-1)%strlen(secretsalt)];
