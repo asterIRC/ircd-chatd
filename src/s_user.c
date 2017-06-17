@@ -383,7 +383,7 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 	}
 
 	/* password check */
-	if(!EmptyString(aconf->passwd))
+	if(!EmptyString(aconf->passwd) && user_metadata_find(source_p, "WEBIRCNAME") == NULL)
 	{
 		const char *encr;
 
