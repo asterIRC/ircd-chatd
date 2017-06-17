@@ -119,11 +119,22 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
 
 	rb_strlcpy(source_p->sockhost, parv[4], sizeof(source_p->sockhost));
 
+	// Bizarre bug on umbrellix... XXX server should not refuse clients that use webirc
+	// XXX only occurs when the webirc is used from localhost... what the fuck
+	rb_strlcpy(source_p->localClient->passwd, parv[1], sizeof(source_p->localClient->passwd));
+
 	if(strlen(parv[3]) <= HOSTLEN)
 		rb_strlcpy(source_p->host, parv[3], sizeof(source_p->host));
 	else
 		rb_strlcpy(source_p->host, source_p->sockhost, sizeof(source_p->host));
-	
+
+	// Bogus IPs. Treat hostNAME as sockhost.
+	if(!strcmp("127.0.0.1", parv[4]))
+		rb_strlcpy(source_p->sockhost, source_p->host, sizeof(source_p->sockhost));
+
+	if(!strcmp("255.255.255.255", parv[4]))
+		rb_strlcpy(source_p->sockhost, source_p->host, sizeof(source_p->sockhost));
+
 	rb_inet_pton_sock(parv[4], (struct sockaddr *)&source_p->localClient->ip);
 
 	user_metadata_add(source_p, "WEBIRCNAME", rb_strdup(aconf->info.name2), 0);

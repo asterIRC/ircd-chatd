@@ -358,6 +358,22 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 		}
 	}
 
+	if (IsConfDoSpoofWebchat(aconf) && IsNoTilde(aconf)) {
+		// User is webchat, and "notilde" (treat USER as if issued by non-webirc) is enabled.
+		// Treat user as having identd running, and USER as being their identd.
+		const char *wp; int wi = 0;
+		wp = username;
+
+		while (*wp && wi < USERLEN)
+		{
+			if(*wp != '[')
+				source_p->username[wi++] = *wp;
+			wp++;
+		}
+
+		source_p->username[wi] = '\0';
+	}
+
 	if(IsNeedSasl(aconf) && !*user->suser)
 	{
 		ServerStats.is_ref++;
