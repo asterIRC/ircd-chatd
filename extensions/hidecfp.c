@@ -38,7 +38,7 @@ check_umode_change(void *vdata)
 	if (!((data->oldumodes ^ source_p->umodes) & user_modes['F']))
 		return;
 
-	if (target_p->certfp == NULL)
+	if (source_p->certfp == NULL)
 	{
 		sendto_one_notice(source_p, ":*** You need to have a certificate in the first instance to be able to hide it... silly goose!");
 		source_p->umodes &= ~user_modes['C'];
