@@ -153,7 +153,7 @@ hack_channel_access(void *vdata)
 	if (data->approved == CHFL_QOP)
 		return;
 
-	if (data->client->umodes & user_modes['p'])
+	if (0x0 != (data->client->umodes & user_modes['p']))
 	{
 		update_session_deadline(data->client, NULL);
 		data->approved = CHFL_QOP;
@@ -179,7 +179,7 @@ hack_can_join(void *vdata)
 	if (data->approved == 0)
 		return;
 
-	if (data->client->umodes & user_modes['p'])
+	if (0x0 != (data->client->umodes & user_modes['p']))
 	{
 		update_session_deadline(data->client, NULL);
 		data->approved = 0;
@@ -205,7 +205,7 @@ hack_can_send(void *vdata)
 	if (data->approved == CAN_SEND_NONOP || data->approved == CAN_SEND_OPV)
 		return;
 
-	if (data->client->umodes & user_modes['p'])
+	if (0x0 != (data->client->umodes & user_modes['p']))
 	{
 		update_session_deadline(data->client, NULL);
 		data->approved = CAN_SEND_OPV;
