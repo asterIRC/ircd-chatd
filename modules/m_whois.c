@@ -36,7 +36,7 @@
 #include "s_serv.h"
 #include "send.h"
 #include "match.h"
-#include "s_conf.h"
+#include "s_user.h"
 #include "logger.h"
 #include "msg.h"
 #include "parse.h"
@@ -54,6 +54,8 @@ struct Message whois_msgtab = {
 	"WHOIS", 0, 0, 0, MFLG_SLOW,
 	{mg_unreg, {m_whois, 2}, {ms_whois, 2}, mg_ignore, mg_ignore, {m_whois, 2}}
 };
+
+#define IsHideCFP(s, t) ( ((t->umodes & user_modes['F']) != 0x0) && !IsOper(s) )
 
 int doing_whois_hook;
 int doing_whois_global_hook;
@@ -344,7 +346,7 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 	if((md = user_metadata_find(target_p, "SWHOIS")))
 		sendto_one_numeric(source_p, RPL_WHOISSPECIAL, form_str(RPL_WHOISSPECIAL),
 				   target_p->name, md->value);
-	if((source_p == target_p || IsOper(source_p)) &&
+	if((source_p == target_p || !IsHideCFP(source_p, target_p)) &&
 			target_p->certfp != NULL)
 		sendto_one_numeric(source_p, RPL_WHOISCERTFP,
 				form_str(RPL_WHOISCERTFP),
