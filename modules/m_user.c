@@ -105,6 +105,7 @@ do_local_user(struct Client *client_p, struct Client *source_p,
 		 */
 		rb_strlcpy(source_p->username, username, sizeof(source_p->username));
 	}
+	rb_strlcpy(source_p->userusername, username, sizeof(source_p->userusername));
 
 	if(source_p->name[0])
 	{

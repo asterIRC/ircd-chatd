@@ -144,6 +144,8 @@ struct Client
 	 * field should be considered read-only.
 	 */
 	char username[USERLEN + 1];	/* client's username */
+	char userusername[USERLEN + 1];	/* from USER only! client's username */
+	char origusername[USERLEN + 1];	/* original, before dynspoofing if ever implemented client's username */
 
 	/*
 	 * client->host contains the resolved name or ip address

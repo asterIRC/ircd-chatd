@@ -361,7 +361,7 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 	if (IsConfUseUserIdent(aconf)) {
 		// User is "use_user_ident". Always use ident from USER command.
 		const char *wp; int wi = 0;
-		wp = username;
+		wp = source_p->userusername;
 
 		while (*wp && wi < USERLEN)
 		{
