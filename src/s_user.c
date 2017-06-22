@@ -358,9 +358,8 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 		}
 	}
 
-	if (IsConfDoSpoofWebchat(aconf) && IsNoTilde(aconf)) {
-		// User is webchat, and "notilde" (treat USER as if issued by non-webirc) is enabled.
-		// Treat user as having identd running, and USER as being their identd.
+	if (IsConfUseUserIdent(aconf)) {
+		// User is "use_user_ident". Always use ident from USER command.
 		const char *wp; int wi = 0;
 		wp = username;
 
