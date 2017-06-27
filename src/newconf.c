@@ -1044,7 +1044,7 @@ conf_end_auth(struct TopConf *tc)
 			(!found_conf->spasswd || (yy_aconf->spasswd &&
 			    0 == irccmp(found_conf->spasswd, yy_aconf->spasswd))))
 		conf_report_error("Ignoring duplicate auth block for %s@%s[%s]",
-				yy_aconf->user, yy_aconf->host, (yy_aconf->info.name2 == NULL) ? "no webircname" : yy_aconf->info.name2);
+				yy_aconf->user, yy_aconf->host, (yy_aconf->info.webircname == NULL) ? "no webircname" : yy_aconf->info.webircname);
 	else
 		add_conf_by_address(yy_aconf->host, CONF_CLIENT, yy_aconf->user, yy_aconf->spasswd, yy_aconf);
 
@@ -1221,8 +1221,8 @@ conf_set_auth_webircname(void *data)
 		return;
 	}
 
-	rb_free(yy_aconf->info.name2);
-	yy_aconf->info.name2 = rb_strdup(data);
+	rb_free(yy_aconf->info.webircname);
+	yy_aconf->info.webircname = rb_strdup(data);
 	yy_aconf->flags |= CONF_FLAGS_SPOOF_WEBCHAT;
 }
 

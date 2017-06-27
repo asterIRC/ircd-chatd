@@ -138,7 +138,7 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
 
 	rb_inet_pton_sock(parv[4], (struct sockaddr *)&source_p->localClient->ip);
 
-	user_metadata_add(source_p, "WEBIRCNAME", rb_strdup(aconf->info.name2), 0);
+	user_metadata_add(source_p, "WEBIRCNAME", rb_strdup(aconf->info.webircname), 0);
 
 	/* Check dlines now, klines will be checked on registration */
 	if((aconf = find_dline((struct sockaddr *)&source_p->localClient->ip, 

@@ -64,6 +64,7 @@ struct ConfItem
 		char *name;	/* IRC name, nick, server name, or original u@h */
 		const char *oper;
 		char *name2;		/* IRC name, nick, server name, or original u@h */
+		char *webircname;
 	} info;
 	char *host;		/* host part of user@host */
 	char *passwd;		/* doubles as kline reason *ugh* */
