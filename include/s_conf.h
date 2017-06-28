@@ -120,7 +120,7 @@ struct ConfItem
 #define CONF_FLAGS_ENCRYPTED            0x00100000
 #define CONF_FLAGS_EXEMPTDNSBL		0x00200000
 #define CONF_FLAGS_SPOOF_WEBCHAT        0x00400000
-#define CONF_FLAGS_USE_USER_IDENT       0x00800000
+#define CONF_FLAGS_USE_USER_IDENT       0x01000000 //jump because of temporary being not-cleared-out...
 
 /* Macros for struct ConfItem */
 #define IsConfBan(x)		((x)->status & (CONF_KILL|CONF_XLINE|CONF_DLINE|\
