@@ -41,3 +41,4 @@ ltmain.sh
 
 *.orig
 *.rej
+*.bak

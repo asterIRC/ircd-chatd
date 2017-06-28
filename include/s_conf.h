@@ -77,6 +77,10 @@ struct ConfItem
 	char *className;	/* Name of class */
 	struct Class *c_class;	/* Class of connection */
 	rb_patricia_node_t *pnode;	/* Our patricia node */
+	char *name;	/* IRC name, nick, server name, or original u@h */
+	const char *oper;
+	char *name2;		/* IRC name, nick, server name, or original u@h */
+	char *webircname;
 };
 
 #define CONF_ILLEGAL            0x80000000
