@@ -1040,7 +1040,7 @@ conf_end_auth(struct TopConf *tc)
 	conf_add_class_to_conf(yy_aconf);
 	if ((found_conf = find_exact_conf_by_address("*", CONF_CLIENT, "*")) && found_conf->spasswd == NULL)
 		conf_report_error("Ignoring redundant auth block (after *@*)");
-	else if ((found_conf = find_exact_conf_by_address(yy_aconf->host, CONF_CLIENT, yy_aconf->user)) && !IsIllegal(found_conf)
+	else if ((found_conf = find_exact_conf_by_address(yy_aconf->host, CONF_CLIENT, yy_aconf->user)) &&
 			(!found_conf->spasswd || (yy_aconf->spasswd &&
 			    0 == irccmp(found_conf->spasswd, yy_aconf->spasswd))))
 		conf_report_error("Ignoring duplicate auth block for %s@%s[%s]",
