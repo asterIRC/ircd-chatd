@@ -322,6 +322,7 @@ struct alias_entry
 {
 	char *name;
 	char *target;
+	char *prefix;
 	int flags;			/* reserved for later use */
 	int hits;
 };

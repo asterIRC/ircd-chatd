@@ -701,7 +701,7 @@ static void do_alias(struct alias_entry *aptr, struct Client *source_p, char *te
 
 	if (text != NULL && *text == ':')
 		text++;
-	if (text == NULL || *text == '\0')
+	if ((text == NULL || *text == '\0') && strlen(aptr->prefix) == 0)
 	{
 		sendto_one(source_p, form_str(ERR_NOTEXTTOSEND), me.name, source_p->name);
 		return;
@@ -713,7 +713,7 @@ static void do_alias(struct alias_entry *aptr, struct Client *source_p, char *te
 	sendto_one(target_p, ":%s PRIVMSG %s :%s",
 			get_id(source_p, target_p),
 			p != NULL ? aptr->target : get_id(target_p, target_p),
-			text);
+			aptr->prefix, (strlen(aptr->prefix) == 0) ? "" : " ", text);
 }
 
 int

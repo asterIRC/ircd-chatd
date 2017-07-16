@@ -1893,6 +1893,11 @@ conf_end_alias(struct TopConf *tc)
 		return -1;
 	}
 
+	if (yy_alias->prefix == NULL)
+	{
+		yy_alias->prefix = rb_strdup("");
+	}
+
 	irc_dictionary_add(alias_dict, yy_alias->name, yy_alias);
 
 	return 0;
@@ -1914,6 +1919,15 @@ conf_set_alias_target(void *data)
 		return;
 
 	yy_alias->target = rb_strdup(data);
+}
+
+static void
+conf_set_alias_prefix(void *data)
+{
+	if (data == NULL || yy_alias == NULL)	/* this shouldn't ever happen */
+		return;
+
+	yy_alias->prefix = rb_strdup(data);
 }
 
 static void
@@ -2445,6 +2459,7 @@ newconf_init()
 	add_top_conf("alias", conf_begin_alias, conf_end_alias, NULL);
 	add_conf_item("alias", "name", CF_QSTRING, conf_set_alias_name);
 	add_conf_item("alias", "target", CF_QSTRING, conf_set_alias_target);
+	add_conf_item("alias", "prefix", CF_QSTRING, conf_set_alias_prefix);
 
 	add_top_conf("blacklist", NULL, NULL, NULL);
 	add_conf_item("blacklist", "host", CF_QSTRING, conf_set_blacklist_host);
