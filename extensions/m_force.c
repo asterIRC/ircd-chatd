@@ -391,10 +391,6 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
             return 0;
         }
 
-        sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
-                             target_p->name, target_p->username,
-                             target_p->host, chptr->chname);
-
         chptr = get_or_create_channel(target_p, newch, NULL);
 	chptr->channelts = rb_current_time();
         add_user_to_channel(chptr, target_p, type);
@@ -412,6 +408,10 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
 		chptr->mode.mode |= MODE_NOPRIVMSGS;
 	}
 	const char *modes = channel_modes(chptr, &me);
+
+        sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
+                             target_p->name, target_p->username,
+                             target_p->host, chptr->chname);
 
 	sendto_channel_local(ONLY_CHANOPS, chptr, ":%s MODE %s %s",
 		     me.name, chptr->chname, modes);
