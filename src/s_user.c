@@ -881,12 +881,12 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 
 	source_p->localClient->flood_multiplier = FloodMultiplier(aconf);
 
-	if(FloodMultiplier(aconf) > 16 && !IsExemptFlood(aconf))
+	if(FloodMultiplier(aconf) > 16 && !IsConfExemptFlood(aconf))
 	{
 		sendto_one_notice(source_p, ":*** Warning: You are more severely limited from flooding than average connections. This could be because your server admin doesn't want distant connections to be able to talk as much as locals, to encourage them to use a closer server? Ask the admin.");
 	}
 
-	if(FloodMultiplier(aconf) < 16 && !IsExemptFlood(aconf))
+	if(FloodMultiplier(aconf) < 16 && !IsConfExemptFlood(aconf))
 	{
 		sendto_one_notice(source_p, ":*** You are less severely limited from flooding than average connections. Bask in the knowlege that your voluminous contributions will take longer to get throttled.");
 	}
