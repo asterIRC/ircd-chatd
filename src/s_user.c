@@ -859,7 +859,7 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 	if(IsConfExemptKline(aconf))
 	{
 		SetExemptKline(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from K/X lines, be they local or global");
+		sendto_one_notice(source_p, ":*** You are exempt from K/X lines, be they local or global. Why this is a good thing isn't clear to the coder.");
 	}
 
 	if(IsConfExemptDNSBL(aconf))
@@ -873,20 +873,20 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 		sendto_one_notice(source_p, ":*** Your I:line permits you to connect even if it's full - you're exempt from user limits");
 	}
 
-	if(IsConfExemptFlood(aconf) || FloodMultiplier(aconf) == 0)
+	if(IsConfExemptFlood(aconf) || ConfFloodMultiplier(aconf) == 0)
 	{
 		SetExemptFlood(source_p);
 		sendto_one_notice(source_p, ":*** You are completely exempt from flood limits. Congratulations. Bask in the knowlege that your voluminous contributions to the community will not be throttled.");
 	}
 
-	source_p->localClient->flood_multiplier = FloodMultiplier(aconf);
+	source_p->localClient->flood_multiplier = ConfFloodMultiplier(aconf);
 
-	if(FloodMultiplier(aconf) > 16 && !IsConfExemptFlood(aconf))
+	if(ConfFloodMultiplier(aconf) > 16 && !IsConfExemptFlood(aconf))
 	{
 		sendto_one_notice(source_p, ":*** Warning: You are more severely limited from flooding than average connections. This could be because your server admin doesn't want distant connections to be able to talk as much as locals, to encourage them to use a closer server? Ask the admin.");
 	}
 
-	if(FloodMultiplier(aconf) < 16 && !IsConfExemptFlood(aconf))
+	if(ConfFloodMultiplier(aconf) < 16 && !IsConfExemptFlood(aconf))
 	{
 		sendto_one_notice(source_p, ":*** You are less severely limited from flooding than average connections. Bask in the knowlege that your voluminous contributions will take longer to get throttled.");
 	}

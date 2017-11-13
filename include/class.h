@@ -85,6 +85,7 @@ extern struct Class *default_class;
 #define ConfCidrAmount(x) (ClassPtr(x)->cidr_amount)
 #define ConfCidrIpv4Bitlen(x) (ClassPtr(x)->cidr_ipv4_bitlen)
 #define ConfCidrIpv6Bitlen(x) (ClassPtr(x)->cidr_ipv6_bitlen)
+#define ConfFloodMultiplier(x)	(ClassPtr(x)->flood_multiplier)
 
 void add_class(struct Class *);
 
