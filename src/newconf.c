@@ -533,6 +533,7 @@ conf_begin_oper(struct TopConf *tc)
 	}
 
 	yy_oper = make_oper_conf();
+	yy_oper->flood_multiplier = -1; // keep user multiplier
 	yy_oper->flags |= OPER_ENCRYPTED;
 
 	return 0;
@@ -703,6 +704,13 @@ conf_set_oper_privset(void *data)
 }
 
 static void
+conf_set_oper_floodmult(void *data)
+{
+	unsigned int maxmult = 64; // sloooooowwwww
+	yy_oper->flood_multiplier = *(unsigned int *)data < maxmult ? *(unsigned int *)data : maxmult;
+}
+
+static void
 conf_set_oper_user(void *data)
 {
 	struct oper_conf *yy_tmpoper;
@@ -777,6 +785,10 @@ conf_begin_class(struct TopConf *tc)
 		free_class(yy_class);
 
 	yy_class = make_class();
+	yy_class->flood_multiplier = 16; // KEEP THIS AT 16! the denominator of this madness
+	// will be made runtime configurable, but right now 16 is a compromise.
+	// 32 is slow flooding, 8 is faster flooding allowed, 4 is old no_oper_flood
+	// 0 is absolute allowed flood (multiplies the left side of the check by 0 so it's always OK)
 	return 0;
 }
 
@@ -860,6 +872,13 @@ static void
 conf_set_class_connectfreq(void *data)
 {
 	yy_class->con_freq = *(unsigned int *) data;
+}
+
+static void
+conf_set_class_floodmult(void *data)
+{
+	unsigned int maxmult = 64; // sloooooowwwww, cannot go slower because that would just break shit
+	yy_class->flood_multiplier = *(unsigned int *)data < maxmult ? *(unsigned int *)data : maxmult;
 }
 
 static void
@@ -2218,6 +2237,7 @@ static struct ConfEntry conf_operator_table[] =
 	{ "rsa_public_key_file",  CF_QSTRING, conf_set_oper_rsa_public_key_file, 0, NULL },
 	{ "flags",	CF_STRING | CF_FLIST, conf_set_oper_flags,	0, NULL },
 	{ "umodes",	CF_STRING | CF_FLIST, conf_set_oper_umodes,	0, NULL },
+	{ "flood_multiplier", CF_INT, conf_set_oper_floodmult, 0, NULL },
 	{ "privset",	CF_QSTRING, conf_set_oper_privset,	0, NULL },
 	{ "snomask",    CF_QSTRING, conf_set_oper_snomask,      0, NULL },
 	{ "swhois",     CF_QSTRING, conf_set_oper_swhois,       0, NULL },
@@ -2249,6 +2269,7 @@ static struct ConfEntry conf_class_table[] =
 	{ "number_per_ident", 	CF_INT,  conf_set_class_number_per_ident,	0, NULL },
 	{ "connectfreq", 	CF_TIME, conf_set_class_connectfreq,		0, NULL },
 	{ "max_number", 	CF_INT,  conf_set_class_max_number,		0, NULL },
+	{ "flood_multiplier",	CF_INT,  conf_set_class_floodmult, 0, NULL},
 	{ "sendq", 		CF_TIME, conf_set_class_sendq,			0, NULL },
 	{ "\0",	0, NULL, 0, NULL }
 };

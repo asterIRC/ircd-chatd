@@ -261,6 +261,7 @@ struct LocalUser
 	int allow_read;		/* how many we're allowed to read in this second */
 	int actually_read;	/* how many we've actually read in this second */
 	int sent_parsed;	/* how many messages we've parsed in this second */
+	int flood_multiplier;	/* how much more leniency we are giving them than we normally would */
 	time_t last_knock;	/* time of last knock */
 	unsigned long random_ping;
 	struct AuthRequest *auth_request;

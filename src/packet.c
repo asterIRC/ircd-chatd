@@ -45,7 +45,14 @@ static void
 parse_client_queued(struct Client *client_p)
 {
 	int dolen = 0;
-	int checkflood = 1;
+
+	// New program: normal flood multiplier is 16. Opers
+	// will be down to 4 if no-oper-flood is defined or
+	// they are oper:quickflood. class= and oper=
+	// blocks will have flood-mult options that will also
+	// change this.
+	// oper:superflood will drop the multiplier to 0
+	int floodmult = 16;
 
 	if(IsAnyDead(client_p))
 		return;
@@ -96,9 +103,10 @@ parse_client_queued(struct Client *client_p)
 	}
 	else if(IsClient(client_p))
 	{
+		// Old is archaic. What if I want some of my opers to flood
+		// and don't trust some? - ellenor
+		floodmult = client_p->localClient->flood_multiplier != -1 ? client_p->localClient->flood_multiplier : 16;
 
-		if(IsOper(client_p) && ConfigFileEntry.no_oper_flood)
-			checkflood = 0;
 		/*
 		 * Handle flood protection here - if we exceed our flood limit on
 		 * messages in this loop, we simply drop out of the loop prematurely.
@@ -119,21 +127,19 @@ parse_client_queued(struct Client *client_p)
 			 * as sent_parsed will always hover around the allow_read limit
 			 * and no 'bursts' will be permitted.
 			 */
-			if(checkflood)
-			{
-				if(client_p->localClient->sent_parsed >= client_p->localClient->allow_read)
-					break;
-				/* spb: Add second layer of throttling to n lines per second, even during burst */
-				if(client_p->localClient->actually_read >= ConfigFileEntry.client_flood_burst_rate)
-					break;
-			}
+			/* We should probably care about rounding properly... */
+			if( (client_p->localClient->sent_parsed * floodmult)
+				>= (client_p->localClient->allow_read * 16))
+				break;
+			/* spb: Add second layer of throttling to n lines per second, even during burst */
+			/* And apply the new leniency system - ellenor */
+			if( (client_p->localClient->actually_read * floodmult)
+				 >= (ConfigFileEntry.client_flood_burst_rate * 16))
+				break;
 
 			/* allow opers 4 times the amount of messages as users. why 4?
 			 * why not. :) --fl_
 			 */
-			else if(client_p->localClient->sent_parsed >= (4 * client_p->localClient->allow_read))
-				break;
-
 			/* post_registration_delay hack. Don't process any messages from a new client for $n seconds,
 			 * to allow network bots to do their thing before channels can be joined.
 			 */

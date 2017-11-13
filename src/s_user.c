@@ -848,61 +848,77 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 	/* If this user is being spoofed, tell them so */
 	if(IsConfDoSpoofIp(aconf))
 	{
-		sendto_one_notice(source_p, ":*** Spoofing your IP");
+#ifdef FLIRTY
+		sendto_one_notice(source_p, ":*** Hiding your IP by static spoof. The ircd bets the operators love you ;)");
+#else
+		sendto_one_notice(source_p, ":*** Hiding your IP by static spoof.");
+#endif
 	}
 
 	/* If this user is in the exception class, Set it "E lined" */
 	if(IsConfExemptKline(aconf))
 	{
 		SetExemptKline(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from K/X lines");
+		sendto_one_notice(source_p, ":*** You are exempt from K/X lines, be they local or global");
 	}
 
 	if(IsConfExemptDNSBL(aconf))
 		/* kline exempt implies this, don't send both */
 		if(!IsConfExemptKline(aconf))
-			sendto_one_notice(source_p, ":*** You are exempt from DNS blacklists");
+			sendto_one_notice(source_p, ":*** You are exempt from being checked against DNS blackhole lists. Good news, eh?");
 
 	/* If this user is exempt from user limits set it F lined" */
 	if(IsConfExemptLimits(aconf))
 	{
-		sendto_one_notice(source_p, ":*** You are exempt from user limits");
+		sendto_one_notice(source_p, ":*** Your I:line permits you to connect even if it's full - you're exempt from user limits");
 	}
 
-	if(IsConfExemptFlood(aconf))
+	if(IsConfExemptFlood(aconf) || FloodMultiplier(aconf) == 0)
 	{
 		SetExemptFlood(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from flood limits");
+		sendto_one_notice(source_p, ":*** You are completely exempt from flood limits. Congratulations. Bask in the knowlege that your voluminous contributions to the community will not be throttled.");
+	}
+
+	source_p->localClient->flood_multiplier = FloodMultiplier(aconf);
+
+	if(FloodMultiplier(aconf) > 16 && !IsExemptFlood(aconf))
+	{
+		sendto_one_notice(source_p, ":*** Warning: You are more severely limited from flooding than average connections. This could be because your server admin doesn't want distant connections to be able to talk as much as locals, to encourage them to use a closer server? Ask the admin.");
+	}
+
+	if(FloodMultiplier(aconf) < 16 && !IsExemptFlood(aconf))
+	{
+		sendto_one_notice(source_p, ":*** You are less severely limited from flooding than average connections. Bask in the knowlege that your voluminous contributions will take longer to get throttled.");
 	}
 
 	if(IsConfExemptSpambot(aconf))
 	{
 		SetExemptSpambot(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from spambot checks");
+		sendto_one_notice(source_p, ":*** You are exempt from spambot checks. Lucky you!");
 	}
 
 	if(IsConfExemptJupe(aconf))
 	{
 		SetExemptJupe(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from juped channel warnings");
+		sendto_one_notice(source_p, ":*** If you attempt to join a juped channel, the opers won't be warned. This is unlike most connections.");
 	}
 
 	if(IsConfExemptResv(aconf))
 	{
 		SetExemptResv(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from resvs");
+		sendto_one_notice(source_p, ":*** You may use juped nicknames if you like.");
 	}
 
 	if(IsConfExemptShide(aconf))
 	{
 		SetExemptShide(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from serverhiding");
+		sendto_one_notice(source_p, ":*** You may see information about servers that normal users may, or may not, be able to see.");
 	}
 
 	if(IsConfExtendChans(aconf))
 	{
 		SetExtendChans(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from normal channel limits.");
+		sendto_one_notice(source_p, ":*** Your channel limit has been extended.");
 	}
 }
 
@@ -1495,6 +1511,9 @@ oper_up(struct Client *source_p, struct oper_conf *oper_p)
 			sendto_server(NULL, NULL, CAP_TS6, CAP_EUID|NOCAPS, ":%s ENCAP * CHGHOST %s :%s", use_id(&me), use_id(source_p), source_p->host);
 			if (!IsDynSpoof(source_p)) SetDynSpoof(source_p);
 		}
+	}
+	if (MyClient(source_p) && oper_p->flood_multiplier != -1 && oper_p->flood_multiplier < source_p->localClient->flood_multiplier) {
+		
 	}
 	sendto_realops_snomask(SNO_GENERAL, L_ALL,
 			     "%s (%s!%s@%s) is now an operator", oper_p->name, source_p->name,
