@@ -172,8 +172,8 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 
         sendto_server(target_p, chptr, NOCAPS, NOCAPS,
                       ":%s SJOIN %ld %s + :%c%s",
-                      me.name, (long) chptr->channelts,
-                      chptr->chname, type ? sjmode : ' ', target_p->name);
+                      me.id, (long) chptr->channelts,
+                      chptr->chname, type ? strndup(sjmode, 1) : "", target_p->id);
 
         sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
                              target_p->name, target_p->username,
@@ -185,7 +185,7 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 
         if(chptr->topic != NULL) {
             sendto_one(target_p, form_str(RPL_TOPIC), me.name,
-                       target_p->name, chptr->chname, chptr->topic);
+                       target_p->id, chptr->chname, chptr->topic);
             sendto_one(target_p, form_str(RPL_TOPICWHOTIME),
                        me.name, source_p->name, chptr->chname,
                        chptr->topic_info, chptr->topic_time);
@@ -364,9 +364,9 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
         add_user_to_channel(chptr, target_p, type);
 
         sendto_server(target_p, chptr, NOCAPS, NOCAPS,
-                      ":%s SJOIN %ld %s + :%c%s",
-                      me.name, (long) chptr->channelts,
-                      chptr->chname, type ? sjmode : ' ', target_p->name);
+                      ":%s SJOIN %ld %s + :%s%s",
+                      me.id, (long) chptr->channelts,
+                      chptr->chname, type ? strndup(sjmode, 1) : "", target_p->id);
 
         sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
                              target_p->name, target_p->username,
@@ -417,9 +417,9 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
 		     me.name, chptr->chname, modes);
 
 	sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
-		      ":%s SJOIN %ld %s %s :%c%s",
+		      ":%s SJOIN %ld %s %s :%s%s",
 		      me.id, (long) chptr->channelts,
-		      chptr->chname, modes, sjmode, target_p->id);
+		      chptr->chname, modes, type ? strndup(sjmode, 1) : "", target_p->id);
 
 	// This next addition was a challenge by TwinUsers.
 	if (strlen(ConfigChannel.autotopic)!=0 && strlen(ConfigChannel.autotopic)<=TOPICLEN) {
