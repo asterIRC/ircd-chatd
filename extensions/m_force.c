@@ -160,6 +160,8 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
     if(mode != '\0')
         parv[2]++;
 
+    char *freeup = NULL;
+
     if((chptr = find_channel(parv[2])) != NULL) {
         if(IsMember(target_p, chptr)) {
             /* debugging is fun... */
@@ -173,7 +175,7 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
         sendto_server(target_p, chptr, NOCAPS, NOCAPS,
                       ":%s SJOIN %ld %s + :%c%s",
                       me.id, (long) chptr->channelts,
-                      chptr->chname, type ? strndup(sjmode, 1) : "", target_p->id);
+                      chptr->chname, type ? (freeup = strndup(sjmode, 1)) : "", target_p->id);
 
         sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
                              target_p->name, target_p->username,
@@ -282,6 +284,8 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
          */
         sendto_one_notice(source_p, ":*** Notice -- Creating channel %s", chptr->chname);
     }
+
+    if (freeup != NULL) free(freeup);
     return 0;
 }
 
@@ -355,6 +359,8 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
     if(mode != '\0')
         parv[2]++;
 
+    char *freeup = NULL;
+
     if((chptr = find_channel(parv[2])) != NULL) {
         if(IsMember(target_p, chptr)) {
             /* debugging is fun... */
@@ -366,7 +372,7 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
         sendto_server(target_p, chptr, NOCAPS, NOCAPS,
                       ":%s SJOIN %ld %s + :%s%s",
                       me.id, (long) chptr->channelts,
-                      chptr->chname, type ? strndup(sjmode, 1) : "", target_p->id);
+                      chptr->chname, type ? (freeup = strndup(sjmode, 1)) : "", target_p->id);
 
         sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
                              target_p->name, target_p->username,
@@ -419,7 +425,7 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
 	sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
 		      ":%s SJOIN %ld %s %s :%s%s",
 		      me.id, (long) chptr->channelts,
-		      chptr->chname, modes, type ? strndup(sjmode, 1) : "", target_p->id);
+		      chptr->chname, modes, type ? (freeup = strndup(sjmode, 1)) : "", target_p->id);
 
 	// This next addition was a challenge by TwinUsers.
 	if (strlen(ConfigChannel.autotopic)!=0 && strlen(ConfigChannel.autotopic)<=TOPICLEN) {
@@ -454,5 +460,6 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
 	hook_info.chptr = chptr;
 	hook_info.key = NULL;
 	call_hook(h_channel_join, &hook_info);
+    if (freeup != NULL) free(freeup);
     return 0;
 }
