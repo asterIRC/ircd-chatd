@@ -238,7 +238,7 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 	sendto_channel_local(ONLY_CHANOPS, chptr, ":%s MODE %s %s",
 		     me.name, chptr->chname, modes);
 
-	sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+	sendto_server(NULL, chptr, CAP_TS6, NOCAPS,
 		      sjmode!=0 ? ":%s SJOIN %ld %s %s :%c%s" : ":%s SJOIN %ld %s %s :%s%s",
 		      me.id, (long) chptr->channelts,
 		      chptr->chname, modes, sjmode!=0 ? sjmode : "", target_p->id);
@@ -416,7 +416,7 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
 	sendto_channel_local(ONLY_CHANOPS, chptr, ":%s MODE %s %s",
 		     me.name, chptr->chname, modes);
 
-	sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+	sendto_server(NULL, chptr, CAP_TS6, NOCAPS,
 		      type ? ":%s SJOIN %ld %s %s :%c%s" : ":%s SJOIN %ld %s %s :%s%s",
 		      me.id, (long) chptr->channelts,
 		      chptr->chname, modes, type ? sjmode : "", target_p->id);
