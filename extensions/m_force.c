@@ -170,7 +170,7 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 
         add_user_to_channel(chptr, target_p, type);
 
-        sendto_server(target_p, chptr, NOCAPS, NOCAPS,
+        sendto_server(NULL, chptr, NOCAPS, NOCAPS,
                       type ? ":%s SJOIN %ld %s + :%c%s" : ":%s SJOIN %ld %s + :%s%s",
                       me.id, (long) chptr->channelts,
                       chptr->chname, type ? sjmode : "", target_p->id);
@@ -246,13 +246,13 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 	// This next addition was a challenge by TwinUsers.
 	if (strlen(ConfigChannel.autotopic)!=0 && strlen(ConfigChannel.autotopic)<=TOPICLEN) {
 		set_channel_topic(chptr, ConfigChannel.autotopic, me.name, rb_current_time());
-		sendto_server(target_p, chptr, CAP_TS6|CAP_EOPMOD, NOCAPS, ":%s ETB %ld %s %ld %s :%s",
+		sendto_server(NULL, chptr, CAP_TS6|CAP_EOPMOD, NOCAPS, ":%s ETB %ld %s %ld %s :%s",
 		              me.id, (long)chptr->channelts, chptr->chname, (long)chptr->topic_time, me.name,
 		              chptr->topic);
-		sendto_server(target_p, chptr, CAP_TS6|CAP_TB, CAP_EOPMOD, ":%s TB %s %ld %s :%s",
+		sendto_server(NULL, chptr, CAP_TS6|CAP_TB, CAP_EOPMOD, ":%s TB %s %ld %s :%s",
 		              me.id, chptr->chname, (long)chptr->topic_time, me.name,
 		              chptr->topic);
-		sendto_server(target_p, chptr, CAP_TS6, CAP_TB|CAP_EOPMOD, ":%s TOPIC %s %ld %s :%s",
+		sendto_server(NULL, chptr, CAP_TS6, CAP_TB|CAP_EOPMOD, ":%s TOPIC %s %ld %s :%s",
 		              me.id, chptr->chname, (long)chptr->topic_time, me.name,
 		              chptr->topic);
 		// XXX - Due to automatic topic on channel create, should we deprecate non-TB/EOPMOD servers?
@@ -363,7 +363,7 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
 
         add_user_to_channel(chptr, target_p, type);
 
-        sendto_server(target_p, chptr, NOCAPS, NOCAPS,
+        sendto_server(NULL, chptr, NOCAPS, NOCAPS,
                       type ? ":%s SJOIN %ld %s + :%c%s" : ":%s SJOIN %ld %s + :%s%s",
                       me.id, (long) chptr->channelts,
                       chptr->chname, type ? sjmode : "", target_p->id);
@@ -424,13 +424,13 @@ me_svsjoin(struct Client *client_p, struct Client *source_p, int parc, const cha
 	// This next addition was a challenge by TwinUsers.
 	if (strlen(ConfigChannel.autotopic)!=0 && strlen(ConfigChannel.autotopic)<=TOPICLEN) {
 		set_channel_topic(chptr, ConfigChannel.autotopic, me.name, rb_current_time());
-		sendto_server(target_p, chptr, CAP_TS6|CAP_EOPMOD, NOCAPS, ":%s ETB %ld %s %ld %s :%s",
+		sendto_server(NULL, chptr, CAP_TS6|CAP_EOPMOD, NOCAPS, ":%s ETB %ld %s %ld %s :%s",
 		              me.id, (long)chptr->channelts, chptr->chname, (long)chptr->topic_time, me.name,
 		              chptr->topic);
-		sendto_server(target_p, chptr, CAP_TS6|CAP_TB, CAP_EOPMOD, ":%s TB %s %ld %s :%s",
+		sendto_server(NULL, chptr, CAP_TS6|CAP_TB, CAP_EOPMOD, ":%s TB %s %ld %s :%s",
 		              me.id, chptr->chname, (long)chptr->topic_time, me.name,
 		              chptr->topic);
-		sendto_server(target_p, chptr, CAP_TS6, CAP_TB|CAP_EOPMOD, ":%s TOPIC %s %ld %s :%s",
+		sendto_server(NULL, chptr, CAP_TS6, CAP_TB|CAP_EOPMOD, ":%s TOPIC %s %ld %s :%s",
 		              me.id, chptr->chname, (long)chptr->topic_time, me.name,
 		              chptr->topic);
 		// XXX - Due to automatic topic on channel create, should we deprecate non-TB/EOPMOD servers?
