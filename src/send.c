@@ -423,7 +423,7 @@ sendto_server(struct Client *one, struct Channel *chptr, unsigned long caps,
 		return;
 
 	if(chptr != NULL && *chptr->chname == '&')
-			return;
+		return;
 
 	rb_linebuf_newbuf(&linebuf);
 	va_start(args, format);
