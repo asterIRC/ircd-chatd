@@ -321,7 +321,7 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		) && p_or_n != NOTICE) {
 			sendto_one_numeric(source_p, ERR_NOSUCHNICK,
 					   form_str(ERR_NOSUCHNICK), nick);
-			continue
+			continue;
 		}
 
 		/* look for a privmsg to another client */
