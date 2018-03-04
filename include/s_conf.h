@@ -154,6 +154,7 @@ struct config_file_entry
 
 	char *egdpool_path;
 
+	char *default_helpopstring;
 	char *default_operstring;
 	char *default_adminstring;
 	char *default_netadminstring;

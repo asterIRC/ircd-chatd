@@ -296,6 +296,7 @@ static struct mode_table umode_table[] = {
 	{"regonlymsg",	UMODE_REGONLYMSG},
 	{"servnotice",	UMODE_SERVNOTICE},
 	{"wallop",	UMODE_WALLOP	},
+	{"helpop",	UMODE_HELPOP	},
 	{"operwall",	UMODE_OPERWALL	},
 	{"override",	UMODE_OVERRIDE	},
 	{NULL, 0}
@@ -2318,6 +2319,7 @@ static struct ConfEntry conf_general_table[] =
 	{ "default_umodes",	CF_QSTRING, conf_set_general_default_umodes, 0, NULL },
 
 	{ "cloak_key",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.cloak_key },
+	{ "helpopstring",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_helpopstring },
 	{ "default_operstring",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_operstring },
 	{ "default_adminstring",CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_adminstring },
 	{ "default_netadminstring",CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_netadminstring },

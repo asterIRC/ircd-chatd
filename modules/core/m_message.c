@@ -254,7 +254,7 @@ static int
 build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		  struct Client *source_p, const char *nicks_channels, const char *text)
 {
-	int type;
+	int type, exists;
 	char *p, *nick, *target_list;
 	struct Channel *chptr = NULL;
 	struct Client *target_p;
@@ -270,6 +270,7 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		 * channels are privmsg'd a lot more than other clients, moved up
 		 * here plain old channel msg?
 		 */
+		exists = 0;
 
 		if(IsChannelName(nick))
 		{
@@ -304,6 +305,24 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 			target_p = find_named_person(nick);
 		else
 			target_p = find_person(nick);
+
+		// If not:
+		//  - my client, named person exists, or
+		//  - other client, person exists, or
+		//  - existing channel
+		// and if:
+		//  - we are PRIVMSG
+		// puke a "nosuchnick" error and move along
+		// the channel part should have been handled.
+		if (!(
+			(MyClient(source_p) && find_named_person(nick) != NULL) ||
+			(!MyClient(source_p) && find_person(nick) != NULL) ||
+			(chptr != NULL)
+		) && p_or_n != NOTICE) {
+			sendto_one_numeric(source_p, ERR_NOSUCHNICK,
+					   form_str(ERR_NOSUCHNICK), nick);
+			continue
+		}
 
 		/* look for a privmsg to another client */
 		if(target_p)

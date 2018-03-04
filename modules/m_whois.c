@@ -56,6 +56,7 @@ struct Message whois_msgtab = {
 };
 
 #define IsHideCFP(s, t) ( ((t->umodes & user_modes['F']) != 0x0) && !IsOper(s) )
+#define IsHideIdle(s, t) ( ((t->umodes & user_modes['I']) != 0x0) && !IsOper(s) )
 
 int doing_whois_hook;
 int doing_whois_global_hook;
@@ -380,7 +381,8 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 					   form_str(RPL_WHOISACTUALLY),
 					   target_p->name, target_p->sockhost);
 
-		sendto_one_numeric(source_p, RPL_WHOISIDLE, form_str(RPL_WHOISIDLE),
+		if (source_p == target_p || !IsHideIdle(source_p, target_p))
+			sendto_one_numeric(source_p, RPL_WHOISIDLE, form_str(RPL_WHOISIDLE),
 				   target_p->name, 
 				   rb_current_time() - target_p->localClient->last, 
 				   target_p->localClient->firsttime);
