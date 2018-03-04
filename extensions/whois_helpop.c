@@ -18,6 +18,14 @@
 #include "s_newconf.h"
 #include "newconf.h"
 
+
+static void h_helpop_whois(hook_data_client *);
+mapi_hfn_list_av1 whois_helpop_hfnlist[] = {
+	{ "doing_whois",	(hookfn) h_helpop_whois },
+	{ "doing_whois_global",	(hookfn) h_helpop_whois },
+	{ NULL, NULL }
+};
+
 static void check_umode_change(void *data);
 char *helpopstring = "";
 
@@ -58,11 +66,4 @@ _moddeinit(void)
 
 DECLARE_MODULE_AV1(whois_helpop, _modinit, _moddeinit, NULL, NULL,
 			whois_helpop_hfnlist, "$Revision: 3526 $");
-
-static void h_helpop_whois(hook_data_client *);
-mapi_hfn_list_av1 whois_helpop_hfnlist[] = {
-	{ "doing_whois",	(hookfn) h_helpop_whois },
-	{ "doing_whois_global",	(hookfn) h_helpop_whois },
-	{ NULL, NULL }
-};
 

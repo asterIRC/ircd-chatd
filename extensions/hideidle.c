@@ -32,7 +32,7 @@ conf_set_hideidle_privilege(void *data)
 static void
 conf_set_hideidle_operonly(void *data)
 {
-	hideidle_operonly = * (unsigned int *) data;
+	hideidle_isoperonly = * (unsigned int *) data;
 }
 
 mapi_hfn_list_av1 hideidle_hfnlist[] = {
