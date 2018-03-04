@@ -38,7 +38,7 @@ conf_set_helpopstring(void *data)
 static void
 h_helpop_whois(hook_data_client *data)
 {
-	if(!EmptyString(helpopstring))
+	if(!EmptyString(helpopstring) && IsHelpOp(data->target))
 	{
 		sendto_one_numeric(data->client, RPL_WHOISSPECIAL,
 				form_str(RPL_WHOISSPECIAL),
