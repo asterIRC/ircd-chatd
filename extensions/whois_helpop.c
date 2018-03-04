@@ -16,6 +16,7 @@
 #include "numeric.h"
 #include "privilege.h"
 #include "s_newconf.h"
+#include "newconf.h"
 
 static void check_umode_change(void *data);
 char *helpopstring = "";
