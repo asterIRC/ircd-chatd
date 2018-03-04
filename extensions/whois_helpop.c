@@ -40,8 +40,8 @@ h_helpop_whois(hook_data_client *data)
 {
 	if(!EmptyString(helpopstring))
 	{
-		sendto_one_numeric(data->client, RPL_WHOISOPERATOR,
-				"%s :%s",
+		sendto_one_numeric(data->client, RPL_WHOISSPECIAL,
+				form_str(RPL_WHOISSPECIAL),
 				data->target->name, helpopstring);
 	}
 }
