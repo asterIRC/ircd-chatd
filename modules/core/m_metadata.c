@@ -129,9 +129,9 @@ m_metadata(struct Client *client_p, struct Client *source_p, int parc, const cha
 		return 0;
 	}
 
-	if (parv[3][0] == 'K')
+	if (parv[3][0] == '@')
 	{
-		sendto_one(source_p, ":%s 801 %s %s %s :KICKNOREJOIN modification prohibited -- used by IRCd", me.name, source_p->name, parv[2], parv[3]);
+		sendto_one(source_p, ":%s 801 %s %s %s :Reserved space modification prohibited -- Reserved for use by IRCd.", me.name, source_p->name, parv[2], parv[3]);
 		return 0;
 	}
 
