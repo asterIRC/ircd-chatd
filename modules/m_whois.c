@@ -248,6 +248,9 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 	int extra_space = 0;
 	struct Metadata *md;
 
+	hdata.client = source_p;
+	hdata.target = target_p;
+
 	if(target_p->user == NULL)
 	{
 		s_assert(0);
@@ -417,9 +420,6 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 			
 		}
 	}
-
-	hdata.client = source_p;
-	hdata.target = target_p;
 
 	/* doing_whois_hook must only be called for local clients,
 	 * doing_whois_global_hook must only be called for local targets
