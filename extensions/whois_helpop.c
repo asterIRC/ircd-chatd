@@ -20,14 +20,21 @@
 
 
 static void h_helpop_whois(hook_data_client *);
+static void h_helpop_high_whois(hook_data_client *);
 mapi_hfn_list_av1 whois_helpop_hfnlist[] = {
 	{ "doing_whois",	(hookfn) h_helpop_whois },
 	{ "doing_whois_global",	(hookfn) h_helpop_whois },
+	{ "doing_whois_top",	(hookfn) h_helpop_high_whois },
+	{ "doing_whois_top_global",	(hookfn) h_helpop_high_whois },
 	{ NULL, NULL }
 };
 
 static void check_umode_change(void *data);
 char *helpopstring = "";
+char helpoploc = 0;
+
+#define IsUnrealStyle()	(helpoploc != 0)
+#define IsChatdStyle()	(helpoploc == 0)
 
 static void
 conf_set_helpopstring(void *data)
@@ -36,7 +43,13 @@ conf_set_helpopstring(void *data)
 }
 
 static void
-h_helpop_whois(hook_data_client *data)
+conf_set_helpoploc(void *data)
+{
+	helpoploc = *(unsigned int *)data;
+}
+
+static void
+helpop_whois(hook_data_client *data)
 {
 	if(!EmptyString(helpopstring) && IsHelpOp(data->target))
 	{
@@ -46,11 +59,22 @@ h_helpop_whois(hook_data_client *data)
 	}
 }
 
+static void h_helpop_whois (hook_data_client *data)
+{
+	if (IsChatdStyle()) helpop_whois(data);
+}
+
+static void h_helpop_high_whois (hook_data_client *data)
+{
+	if (IsUnrealStyle()) helpop_whois(data);
+}
+
 static int
 _modinit(void)
 {
 	/* add the usermode to the available slot */
 	add_conf_item("general", "helpopstring", CF_QSTRING, conf_set_helpopstring);
+	add_conf_item("general", "helpop_unreal_loc", CF_YESNO, conf_set_helpoploc);
 	construct_umodebuf();
 
 	return 0;
@@ -61,6 +85,7 @@ _moddeinit(void)
 {
 	/* disable the umode and remove it from the available list */
 	remove_conf_item("general", "helpopstring");
+	remove_conf_item("general", "helpop_unreal_loc");
 	construct_umodebuf();
 }
 
