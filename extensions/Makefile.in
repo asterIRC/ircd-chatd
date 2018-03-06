@@ -62,6 +62,7 @@ SRCS =                          \
   override.c			\
   hidecfp.c			\
   hideidle.c			\
+  hidechannels.c		\
   whois_helpop.c		\
   sno_farconnect.c		\
   sno_globalkline.c		\
