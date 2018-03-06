@@ -57,7 +57,7 @@ struct Message whois_msgtab = {
 
 #define IsHideCFP(s, t) ( ((t->umodes & user_modes['F']) != 0x0) && !IsOper(s) )
 #define IsHideIdle(s, t) ( ((t->umodes & user_modes['I']) != 0x0) && !IsOper(s) )
-#define IsHideChannels(s, t) ( ((t->umodes & user_modes['M']) != 0x0) && ((s->umodes & user_modes['P']) != 0x0) )
+#define IsHideChannels(s, t) ( ((t->umodes & user_modes['M']) != 0x0) && ((s->umodes & user_modes['P']) == 0x0) )
 
 int doing_whois_hook;
 int doing_whois_top_hook;
