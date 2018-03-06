@@ -1,15 +1,28 @@
 MODE <nick> <+|-><modes>
 
-Usermodes:
+Usermodes: (^ designates that the umode might be oper only)
 
      USERMODE     DESCRIPTION
 -----------------------------------------------------------------
+         +i     - Designates this client 'invisible'.
+                  This hides you from people who you are not in the same
+                  channels as, as well as hiding the channels that you
+                  are in that the other person is not in if another person
+                  is to whois you.
+         +g     - "caller id" mode only allow accept clients to message you
+         +w     - Can see oper and server wallops.
          +o     - Designates this client is an IRC Operator.
                   Use the /oper command to attain this.
-         +i     - Designates this client 'invisible'.
-         +g     - "caller id" mode only allow accept clients to message you
-         +w     - Can see oper wallops.
+         +O     - Designates this client is a 'helper' -- operator with reduced
+                  privilege. Use the /oper command to attain this.
          +D     - Deaf - ignores all channel messages.
          +Q     - Prevents you from being affected by channel forwarding.
          +R     - Prevents non accept unidentified users from messaging you.
          +Z     - Is connected via SSL (cannot be set or unset).
+         +A     - Is connected through SCTP (cannot be set or unset)
+       ^ +M     - Hide all channels from most users (except those who are
+                  set umode +P)
+       ^ +I     - Hides your idle time.
+       ^ +F     - Hides your SSL certificate fingerprint from others.
+       ^ +P     - Shows channels you share with all users, including +M
+                  users.
