@@ -79,6 +79,7 @@ SRCS =                          \
   m_mkpasswd.c                  \
   m_ojoin.c			\
   m_olist.c			\
+  m_force.c			\
   m_okick.c			\
   m_omode.c			\
   m_opme.c			\
