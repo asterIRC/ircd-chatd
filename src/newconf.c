@@ -289,6 +289,7 @@ conf_set_modules_path(void *data)
 /* *INDENT-OFF* */
 static struct mode_table umode_table[] = {
 	{"callerid",	UMODE_CALLERID	},
+        {"sslonlymsg",	UMODE_SSLONLYMSG},
 	{"deaf",	UMODE_DEAF	},
 	{"invisible",	UMODE_INVISIBLE	},
 	{"locops",	UMODE_LOCOPS	},

@@ -10,6 +10,7 @@ Usermodes: (^ designates that the umode might be oper only)
                   are in that the other person is not in if another person
                   is to whois you.
          +g     - "caller id" mode only allow accept clients to message you
+         +t     - Prevents non-SSL users you have not accepted from messaging you.
          +w     - Can see oper and server wallops.
          +o     - Designates this client is an IRC Operator.
                   Use the /oper command to attain this.
