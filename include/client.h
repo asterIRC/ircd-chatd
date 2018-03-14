@@ -428,6 +428,7 @@ struct ListClient
 #define UMODE_NOFORWARD    0x0100	/* don't forward */
 #define UMODE_REGONLYMSG   0x0200	/* only allow logged in users to msg */
 #define UMODE_HELPOP	   0x0400	/* show in stats p */
+#define UMODE_SSLONLYMSG   0x200000     /* only allow users using SSL to msg */
 
 /* user information flags, only settable by remote mode or local oper */
 #define UMODE_OPER         0x1000	/* Operator */
@@ -447,7 +448,7 @@ struct ListClient
 #define IsNetAdmin(x)		((x)->umodes & UMODE_NETADMIN)
 #define IsHelper(x)		((x)->umodes & UMODE_HELPER)
 #define IsAnyOper(x)		((x)->umodes & (UMODE_OPER|UMODE_HELPER))
-
+#define IsSetSslOnlyMsg(x)	((x)->umodes & UMODE_SSLONLYMSG)
 #define IsOverride(x)		((x)->umodes & UMODE_OVERRIDE)
 
 /* Is t an oper, and is s allowed to know this? */
