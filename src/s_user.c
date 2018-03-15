@@ -197,7 +197,7 @@ char *user_mode_names[256] = {
 	NULL,			/* t */
 	NULL,			/* u */
 	NULL,			/* v */
-	"wallops",		/* w */
+	"wallop",		/* w */
 	NULL,			/* x */
 	NULL,			/* y */
 	"operwall",		/* z */

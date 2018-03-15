@@ -399,8 +399,9 @@ umode_from_gtables(const char *name)
 {
 	int i;
 
-	for (i = 0; user_mode_names[i] != NULL; i++)
+	for (i = 0; i < 256; i++)
 	{
+		if (user_mode_names[i] == NULL) continue;
 		if(strcmp(user_mode_names[i], name) == 0)
 			return user_modes[i];
 	}
