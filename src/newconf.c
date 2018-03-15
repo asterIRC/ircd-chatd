@@ -409,7 +409,7 @@ umode_from_gtables(const char *name)
 }
 
 static void
-set_modes_from_global_table(int *modes, const char *whatis,, conf_parm_t * args)
+set_modes_from_global_table(int *modes, const char *whatis, conf_parm_t * args)
 {
 	for (; args; args = args->next)
 	{
