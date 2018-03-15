@@ -49,7 +49,14 @@ extern int introduce_client(struct Client *client_p, struct Client *source_p,
 extern void change_nick_user_host(struct Client *target_p, const char *nick, const char *user,
 				  const char *host, int newts, const char *format, ...);
 
+typedef struct modetable {
+	int mode;
+	char *name;
+	char letter;
+} modetable;
+
 extern int user_modes[256];
+extern char *user_mode_names[256];
 extern unsigned int find_umode_slot(void);
 extern void construct_umodebuf(void);
 

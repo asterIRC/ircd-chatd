@@ -162,10 +162,18 @@ struct config_file_entry
 	char *servicestring;
 	char *kline_reason;
 
+	int kline_prefixing;
+	int kline_suffixing;
+	int kline_timesuffixing;
+
+	char *kline_prefix;
+	char *kline_suffix;
+	char *kline_timesuffix;
+
 	char *identifyservice;
 	char *identifycommand;
 	char *cloak_key;
-	
+
 	char *fname_userlog;
 	char *fname_fuserlog;
 	char *fname_operlog;

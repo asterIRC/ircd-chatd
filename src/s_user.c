@@ -131,6 +131,94 @@ int user_modes[256] = {
 	/* 0xE0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xEF */
 	/* 0xF0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  /* 0xFF */
 };
+
+// table of usermodes
+// first match wins, please don't use names that are here in modules
+// to make a module one that cannot be configured in the config file,
+// simply don't define a user_mode_names= in the file
+// in unloads, you must reinitialise to NULL
+// thanks
+int user_mode_names[256] = {
+	/* 0x00 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0x0F */
+	/* 0x10 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0x1F */
+	/* 0x20 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0x2F */
+	/* 0x30 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0x3F */
+	NULL,			/* @ */
+	"sctpclient",		/* A */
+	NULL,			/* B */
+	NULL,			/* C */
+	"deaf",			/* D */
+	NULL,			/* E */
+	NULL,			/* F */
+	NULL,			/* G */
+	NULL,			/* H */
+	NULL,			/* I */
+	NULL,			/* J */
+	NULL,			/* K */
+	NULL,			/* L */
+	NULL,			/* M */
+	"netadmin",	        /* N */
+	"local_oper",		/* O */
+	NULL,			/* P */
+	"noforward",		/* Q */
+	"regonlymsg",		/* R */
+	"services",		/* S */
+	NULL,			/* T */
+	NULL,			/* U */
+	NULL,			/* V */
+	NULL,			/* W */
+	NULL,			/* X */
+	NULL,			/* Y */
+	"sslclient",		/* Z */
+	/* 0x5B */ NULL, NULL, NULL, NULL, NULL, NULL, /* 0x60 */
+	"serveradmin",		/* a */
+	NULL,			/* b */
+	NULL,			/* c */
+	NULL,			/* d */
+	NULL,			/* e */
+	NULL,			/* f */
+	"callerid",		/* g */
+	"helpop",		/* h */
+	"invisible",		/* i */
+	NULL,			/* j */
+	NULL,			/* k */
+	"locops",		/* l */
+	NULL,			/* m */
+	NULL,			/* n */
+	"ircop",		/* o */
+	"override",		/* p */
+	NULL,			/* q */
+	"registered",		/* r */
+	"servnotice",	/* s */
+	NULL,			/* t */
+	NULL,			/* u */
+	NULL,			/* v */
+	"wallops",		/* w */
+	NULL,			/* x */
+	NULL,			/* y */
+	"operwall",		/* z */
+	/* 0x7B */ NULL, NULL, NULL, NULL, NULL, /* 0x7F */
+	/* 0x80 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0x9F */
+	/* 0x90 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0x9F */
+	/* 0xA0 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0xAF */
+	/* 0xB0 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0xBF */
+	/* 0xC0 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0xCF */
+	/* 0xD0 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0xDF */
+	/* 0xE0 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0xEF */
+	/* 0xF0 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0  /* 0xFF */
+};
 /* *INDENT-ON* */
 
 /*

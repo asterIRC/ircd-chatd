@@ -4,46 +4,47 @@
  * Rights to this code are documented in doc/LICENSE.
  *
  * This file contains protocol support for ircd-seven.
- * That is, the ircd-chatd fork of ircd-seven :P
+ *
  */
 
 #include "atheme.h"
 #include "uplink.h"
 #include "pmodule.h"
-#include "protocol/charybdis.h"
-#include "protocol/ircd-seven.h"
+#include "protocol/elemental-ircd.h"
+//#define CMODE_KICKNOREJOIN 0x80000000 /* shadowircd +J */
+#define CMODE_DELJOINS 0x100000000 /* shadowircd +J */
 
-DECLARE_MODULE_V1("protocol/ircd-seven", true, _modinit, NULL, PACKAGE_STRING, "Atheme Development Group <http://www.atheme.org>");
+DECLARE_MODULE_V1("protocol/ircd-chatd", true, _modinit, NULL, PACKAGE_STRING, "Shaltúre developers <https://github.com/shalture>");
 
 /* *INDENT-OFF* */
 
-ircd_t Seven = {
-        "ircd-seven",			/* IRCd name */
-        "$$",                           /* TLD Prefix, used by Global. */
-        true,                           /* Whether or not we use IRCNet/TS6 UID */
-        false,                          /* Whether or not we use RCOMMAND */
-        true,                           /* Whether or not we support channel owners. */
-        true,                           /* Whether or not we support channel protection. */
-        true,                           /* Whether or not we support halfops. */
-	false,				/* Whether or not we use P10 */
-	false,				/* Whether or not we use vHosts. */
-	CMODE_EXLIMIT | CMODE_PERM | CMODE_IMMUNE, /* Oper-only cmodes */
-        CSTATUS_OWNER,                  /* Integer flag for owner channel flag. */
-        CSTATUS_ADMIN,                  /* Integer flag for protect channel flag. */
-        CSTATUS_HALFOP,                 /* Integer flag for halfops. */
-        "+w",                            /* Mode we set for owner. */
-        "+a",                            /* Mode we set for protect. */
-        "+h",                            /* Mode we set for halfops. */
-	PROTOCOL_CHARYBDIS,		/* Protocol type */
-	CMODE_PERM,                     /* Permanent cmodes */
-	CMODE_IMMUNE,                   /* Oper-immune cmode */
-	"beIq",                         /* Ban-like cmodes */
-	'e',                            /* Except mchar */
-	'I',                            /* Invex mchar */
-	IRCD_CIDR_BANS | IRCD_HOLDNICK /* Flags */
+ircd_t Chatd = {
+	.ircdname = "ircd-chatd",
+	.tldprefix = "$$",
+	.uses_uid = true,
+	.uses_rcommand = false,
+	.uses_owner = true,
+	.uses_protect = true,
+	.uses_halfops = true,
+	.uses_p10 = false,
+	.uses_vhost = false,
+	.oper_only_modes = CMODE_EXLIMIT | CMODE_PERM | CMODE_IMMUNE,
+	.owner_mode = CSTATUS_OWNER,
+	.protect_mode = CSTATUS_PROTECT,
+	.halfops_mode = CSTATUS_HALFOP,
+	.owner_mchar = "+w",
+	.protect_mchar = "+a",
+	.halfops_mchar = "+h",
+	.type = PROTOCOL_CHARYBDIS,
+	.perm_mode = CMODE_PERM,
+	.oimmune_mode = CMODE_IMMUNE,
+	.ban_like_modes = "beIq",
+	.except_mchar = 'e',
+	.invex_mchar = 'I',
+	.flags = IRCD_CIDR_BANS | IRCD_HOLDNICK | IRCD_ENCAP_FJOIN,
 };
 
-struct cmode_ seven_mode_list[] = {
+struct cmode_ chatd_mode_list[] = {
   { 'i', CMODE_INVITE },
   { 'm', CMODE_MOD    },
   { 'n', CMODE_NOEXT  },
@@ -51,7 +52,8 @@ struct cmode_ seven_mode_list[] = {
   { 's', CMODE_SEC    },
   { 't', CMODE_TOPIC  },
   { 'c', CMODE_NOCOLOR},
-  { 'r', CMODE_REGONLY},
+  { 'R', CMODE_REGONLY},
+  { 'r', CMODE_CHANREG},
   { 'z', CMODE_OPMOD  },
   { 'g', CMODE_FINVITE},
   { 'L', CMODE_EXLIMIT},
@@ -59,71 +61,74 @@ struct cmode_ seven_mode_list[] = {
   { 'F', CMODE_FTARGET},
   { 'Q', CMODE_DISFWD },
   { 'M', CMODE_IMMUNE },
+  { 'T', CMODE_NONOTICE},
   { 'C', CMODE_NOCTCP },
+  { 'D', CMODE_NOREPEAT }, // wrong but we run out of codes...
 
   /* following modes are added as extensions */
-  { 'N', CMODE_NPC       },
-  { 'S', CMODE_SSLONLY   },
+  { 'S', CMODE_SSLONLY	 },
   { 'O', CMODE_OPERONLY  },
   { 'A', CMODE_ADMINONLY },
 
   { '\0', 0 }
 };
 
-struct cmode_ elemental_status_mode_list[] = {
-  { 'w', CSTATUS_OWNER },
+struct cmode_ chatd_status_mode_list[] = {
+  { 'W', CSTATUS_IMMUNE	 },
+  { 'w', CSTATUS_OWNER	 },
   { 'a', CSTATUS_PROTECT },
-  { 'o', CSTATUS_OP    },
-  { 'h', CSTATUS_HALFOP },
-  { 'v', CSTATUS_VOICE },
+  { 'o', CSTATUS_OP	 },
+  { 'h', CSTATUS_HALFOP  },
+  { 'v', CSTATUS_VOICE	 },
   { '\0', 0 }
 };
 
-struct cmode_ elemental_prefix_mode_list[] = {
-  { '~', CSTATUS_OWNER },
+struct cmode_ chatd_prefix_mode_list[] = {
+  { '!', CSTATUS_IMMUNE	 },
+  { '~', CSTATUS_OWNER	 },
   { '&', CSTATUS_PROTECT },
-  { '@', CSTATUS_OP    },
-  { '%', CSTATUS_HALFOP },
-  { '+', CSTATUS_VOICE },
+  { '@', CSTATUS_OP	 },
+  { '%', CSTATUS_HALFOP  },
+  { '+', CSTATUS_VOICE	 },
   { '\0', 0 }
 };
 
-struct cmode_ seven_user_mode_list[] = {
+
+struct cmode_ chatd_user_mode_list[] = {
   { 'p', UF_IMMUNE   },
   { 'a', UF_ADMIN    },
   { 'i', UF_INVIS    },
   { 'o', UF_IRCOP    },
   { 'D', UF_DEAF     },
+  { 'S', UF_SERVICE  },
   { '\0', 0 }
 };
 
 /* *INDENT-ON* */
 
-static bool seven_is_valid_hostslash(const char *host)
+static bool chatd_is_valid_hostslash(const char *host)
 {
-        const char *p;
-        bool dot = false;
+	const char *p;
+	bool dot = false;
 
-	return true;
+	if (*host == '.' || *host == '/' || *host == ':')
+		return false;
 
-        if (*host == '.' || *host == '/' || *host == ':')
-                return false;
-
-        for (p = host; *p != '\0'; p++)
-        {
-                if (*p == '.' || *p == ':' || *p == '/')
-                        dot = true;
-                else if (!((*p >= '0' && *p <= '9') || (*p >= 'A' && *p <= 'Z') ||
-                                        (*p >= 'a' && *p <= 'z') || *p == '-'))
-                        return false;
-        }
-        /* hyperion allows a trailing / but RichiH does not want it, whatever */
-        if (dot && p[-1] == '/')
-                return false;
-        return dot;
+	for (p = host; *p != '\0'; p++)
+	{
+		if (*p == '.' || *p == ':' || *p == '/')
+			dot = true;
+		else if (!((*p >= '0' && *p <= '9') || (*p >= 'A' && *p <= 'Z') ||
+					(*p >= 'a' && *p <= 'z') || *p == '-'))
+			return false;
+	}
+	/* hyperion allows a trailing / but RichiH does not want it, whatever */
+	if (dot && p[-1] == '/')
+		return false;
+	return dot;
 }
 
-static void seven_wallops_sts(const char *reason)
+static void chatd_wallops_sts(const char *reason)
 {
 	sts(":%s ENCAP * SNOTE s :%s", ME, reason);
 }
@@ -221,11 +226,11 @@ static void m_nick(sourceinfo_t *si, int parc, char *parv[])
 	{
 		bool realchange;
 
-                if (!si->su)
-                {       
-                        slog(LG_DEBUG, "m_nick(): server trying to change nick: %s", si->s != NULL ? si->s->name : "<none>");
-                        return;
-                }
+		if (!si->su)
+		{
+			slog(LG_DEBUG, "m_nick(): server trying to change nick: %s", si->s != NULL ? si->s->name : "<none>");
+			return;
+		}
 
 		slog(LG_DEBUG, "m_nick(): nickname change from `%s': %s", si->su->nick, parv[0]);
 
@@ -256,7 +261,7 @@ static void m_nick(sourceinfo_t *si, int parc, char *parv[])
 }
 
 /* protocol-specific stuff to do on login */
-static void seven_on_login(user_t *u, myuser_t *mu, const char *wantedhost)
+static void chatd_on_login(user_t *u, myuser_t *mu, const char *wantedhost)
 {
 	return_if_fail(u != NULL);
 
@@ -266,7 +271,7 @@ static void seven_on_login(user_t *u, myuser_t *mu, const char *wantedhost)
 		sts(":%s ENCAP * IDENTIFIED %s %s", ME, CLIENT_NAME(u), u->nick);
 }
 
-static bool seven_on_logout(user_t *u, const char *account)
+static bool chatd_on_logout(user_t *u, const char *account)
 {
 	return_val_if_fail(u != NULL, false);
 
@@ -297,22 +302,22 @@ void _modinit(module_t * m)
 {
 	MODULE_TRY_REQUEST_DEPENDENCY(m, "protocol/charybdis");
 
-	mode_list = seven_mode_list;
-	user_mode_list = seven_user_mode_list;
-	status_mode_list = elemental_status_mode_list;
-	prefix_mode_list = elemental_prefix_mode_list;
+	mode_list = chatd_mode_list;
+	user_mode_list = chatd_user_mode_list;
+	status_mode_list = chatd_status_mode_list;
+	prefix_mode_list = chatd_prefix_mode_list;
 
-	wallops_sts = &seven_wallops_sts;
-	ircd_on_login = &seven_on_login;
-	ircd_on_logout = &seven_on_logout;
-	is_valid_host = &seven_is_valid_hostslash;
+	wallops_sts = &chatd_wallops_sts;
+	ircd_on_login = &chatd_on_login;
+	ircd_on_logout = &chatd_on_logout;
+	is_valid_host = &chatd_is_valid_hostslash;
 
 	pcommand_delete("NICK");
 	pcommand_add("NICK", m_nick, 2, MSRC_USER | MSRC_SERVER);
 	pcommand_delete("EUID");
 	pcommand_add("EUID", m_euid, 11, MSRC_SERVER);
 
-	ircd = &Seven;
+	ircd = &Chatd;
 
 	hook_add_event("nick_group");
 	hook_add_nick_group(nick_group);
