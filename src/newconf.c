@@ -394,6 +394,63 @@ find_umode(struct mode_table *tab, const char *name)
 	return -1;
 }
 
+static int
+umode_from_gtables(const char *name)
+{
+	int i;
+
+	for (i = 0; user_mode_names[i] != NULL; i++)
+	{
+		if(strcmp(user_mode_names[i], name) == 0)
+			return user_modes[i];
+	}
+
+	return -1;
+}
+
+static void
+set_modes_from_global_table(int *modes, const char *whatis,, conf_parm_t * args)
+{
+	for (; args; args = args->next)
+	{
+		const char *umode;
+		int dir = 1;
+		int mode;
+
+		if((args->type & CF_MTYPE) != CF_STRING)
+		{
+			conf_report_error("Warning -- %s is not a string; ignoring.", whatis);
+			continue;
+		}
+
+		umode = args->v.string;
+
+		if(*umode == '~')
+		{
+			dir = 0;
+			umode++;
+		}
+
+		mode = umode_from_gtables(umode);
+
+		if(mode == -1)
+		{
+			conf_report_error("Warning -- unknown %s %s.", whatis, args->v.string);
+			continue;
+		}
+
+		if(mode)
+		{
+			if(dir)
+				*modes |= mode;
+			else
+				*modes &= ~mode;
+		}
+		else
+			*modes = 0;
+	}
+}
+
 static void
 set_modes_from_table(int *modes, const char *whatis, struct mode_table *tab, conf_parm_t * args)
 {
@@ -770,7 +827,7 @@ conf_set_oper_rsa_public_key_file(void *data)
 static void
 conf_set_oper_umodes(void *data)
 {
-	set_modes_from_table(&yy_oper->umodes, "umode", umode_table, data);
+	set_modes_from_global_table(&yy_oper->umodes, "umode", data);
 }
 
 static void
@@ -1735,8 +1792,9 @@ conf_set_general_compression_level(void *data)
 #endif
 }
 
+// older version
 static void
-conf_set_general_default_umodes(void *data)
+conf_set_general_default_umodes_by_character(void *data)
 {
 	char *pm;
 	int what = MODE_ADD, flag;
@@ -1755,6 +1813,7 @@ conf_set_general_default_umodes(void *data)
 
 		/* don't allow +o */
 		case 'o':
+		case 'A':
 		case 'S':
 		case 'Z':
 		case ' ':
@@ -1772,19 +1831,26 @@ conf_set_general_default_umodes(void *data)
 			}
 			break;
 		}
-	}			
+	}
+}
+
+// newer version
+static void
+conf_set_general_default_umodes(void *data)
+{
+	set_modes_from_global_table(&ConfigFileEntry.default_umodes, "umode", data);
 }
 
 static void
 conf_set_general_oper_umodes(void *data)
 {
-	set_modes_from_table(&ConfigFileEntry.oper_umodes, "umode", umode_table, data);
+	set_modes_from_global_table(&ConfigFileEntry.oper_umodes, "umode", data);
 }
 
 static void
 conf_set_general_oper_only_umodes(void *data)
 {
-	set_modes_from_table(&ConfigFileEntry.oper_only_umodes, "umode", umode_table, data);
+	set_modes_from_global_table(&ConfigFileEntry.oper_only_umodes, "umode", data);
 }
 
 static void
@@ -2316,8 +2382,11 @@ static struct ConfEntry conf_general_table[] =
 	{ "kline_delay", 	CF_TIME,   conf_set_general_kline_delay,	0, NULL },
 	{ "stats_k_oper_only", 	CF_STRING, conf_set_general_stats_k_oper_only,	0, NULL },
 	{ "stats_i_oper_only", 	CF_STRING, conf_set_general_stats_i_oper_only,	0, NULL },
+#ifdef	UPGRADED_DEFAULT_UMODES_SYSTEM
 	{ "default_umodes",	CF_QSTRING, conf_set_general_default_umodes, 0, NULL },
-
+#else
+	{ "default_umodes",	CF_QSTRING, conf_set_general_default_umodes_by_character, 0, NULL },
+#endif
 	{ "cloak_key",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.cloak_key },
 	{ "default_operstring",	CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_operstring },
 	{ "default_adminstring",CF_QSTRING, NULL, REALLEN,    &ConfigFileEntry.default_adminstring },
