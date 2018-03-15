@@ -90,7 +90,9 @@ _modinit(void)
 	add_conf_item("channelhiding", "override_operonly", CF_YESNO, conf_set_hidechannels_override_operonly);
 	add_conf_item("channelhiding", "override_privilege", CF_QSTRING, conf_set_hidechannels_override_privilege);
 	user_modes['M'] = find_umode_slot();
+	user_mode_names['M'] = "chanhide";
 	user_modes['P'] = find_umode_slot();
+	user_mode_names['P'] = "override_chanhide";
 	construct_umodebuf();
 
 	return 0;
@@ -102,6 +104,8 @@ _moddeinit(void)
 	/* disable the umode and remove it from the available list */
 	user_modes['M'] = 0;
 	user_modes['P'] = 0;
+	user_mode_names['M'] = 0;
+	user_mode_names['P'] = 0;
 	remove_conf_item("channelhiding", "hide_operonly");
 	remove_conf_item("channelhiding", "hide_privilege");
 	remove_conf_item("channelhiding", "override_operonly");

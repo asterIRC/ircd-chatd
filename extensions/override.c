@@ -252,6 +252,7 @@ _modinit(void)
 {
 	/* add the usermode to the available slot */
 	user_modes['p'] = find_umode_slot();
+	user_mode_names['p'] = "override";
 	construct_umodebuf();
 
         expire_override_deadlines_ev = rb_event_add("expire_override_deadlines", expire_override_deadlines, NULL, 60);
@@ -264,6 +265,7 @@ _moddeinit(void)
 {
 	/* disable the umode and remove it from the available list */
 	user_modes['p'] = 0;
+	user_mode_names['p'] = NULL;
 	construct_umodebuf();
 
 	rb_event_delete(expire_override_deadlines_ev);

@@ -68,6 +68,7 @@ _modinit(void)
 	add_conf_item("general", "hideidle_requires_oper", CF_YESNO, conf_set_hideidle_operonly);
 	add_conf_item("general", "hideidle_requires_privilege", CF_QSTRING, conf_set_hideidle_privilege);
 	user_modes['I'] = find_umode_slot();
+	user_mode_names['I'] = "hideidle";
 	construct_umodebuf();
 
 	return 0;
@@ -78,6 +79,7 @@ _moddeinit(void)
 {
 	/* disable the umode and remove it from the available list */
 	user_modes['I'] = 0;
+	user_mode_names['I'] = 0;
 	remove_conf_item("general", "hideidle_requires_oper");
 	remove_conf_item("general", "hideidle_requires_privilege");
 	construct_umodebuf();

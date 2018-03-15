@@ -19,6 +19,7 @@ _modinit(void)
 {
 	/* add the usermode to the available slot */
 	user_modes['h'] = find_umode_slot();
+	user_mode_names['h'] = "cloaked";
 	construct_umodebuf();
 
 	return 0;
@@ -29,6 +30,7 @@ _moddeinit(void)
 {
 	/* disable the umode and remove it from the available list */
 	user_modes['h'] = 0;
+	user_mode_names['h'] = NULL;
 	construct_umodebuf();
 }
 
