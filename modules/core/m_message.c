@@ -755,6 +755,42 @@ expire_tgchange(void *unused)
 	}
 }
 
+static int
+can_msg_ssl_client (int p_or_n, struct Client *source_p, struct Client *target_p)
+{
+	int canmsg = 0;
+
+	// First, check whether target_p accepts source_p.
+	if (accept_message(source_p, target_p)) return 1; //no need to set
+	// that they can message; just return 1
+
+	// check that the target is -t, or that the source is using SSL
+	// a module providing umode +t must be available for this not
+	// to always go to "yes"
+	if ( ((target_p->umodes & user_modes['t']) != 0x0) ) {
+		if (IsSSLClient(source_p)) canmsg = 1;
+		// he can probably message if is ssl
+	} else // we're not the one prohibiting them from sending
+		return 1;
+
+	// well you messaged a cleartext user, so you consented to your msgs
+	// going down a cleartext connection. don't come crying to me.
+	if (!IsSSLClient(target_p) && ((source_p->umodes & user_modes['t']) != 0x0)) {
+		if(rb_dlink_list_length(&source_p->localClient->allow_list) <
+			ConfigFileEntry.max_accept)
+		{
+			rb_dlinkAddAlloc(target_p, &source_p->localClient->allow_list);
+			rb_dlinkAddAlloc(source_p, &target_p->on_allow_list);
+		}
+		else
+		{
+			return 0; // no they can't
+		}
+	}
+
+	return canmsg; //don't bother
+}
+
 /*
  * msg_client
  *
@@ -780,6 +816,11 @@ msg_client(int p_or_n, const char *command,
 		 * through a +g.  Rationale is that people can presently use +g
 		 * as a way to taunt users, e.g. harass them and hide behind +g
 		 * as a way of griefing.  --nenolod
+		 * Resolved. Not controversial. As your enemy, nenolod, I,
+		 * Reinhilde Malik do solemnly declare that it should not
+		 * be possible for one to grief through +g.
+		 * I'm guilty of it myself. Well, Ellie is, but systemic
+		 * responsibility and that ;)
 		 */
 		if(p_or_n != NOTICE && IsSetCallerId(source_p) &&
 				!accept_message(target_p, source_p) &&
@@ -846,15 +887,45 @@ msg_client(int p_or_n, const char *command,
 
 	if(MyClient(target_p))
 	{
-		/* XXX Controversial? allow opers always to send through a +g */
+		/* XXX Controversial? allow opers always to send through a +g
+		 * yep, deleted that from this ircd. may import oaccept. */
 		if(!IsServer(source_p) && (IsSetCallerId(target_p) ||
+					((target_p->umodes & user_modes['t']) != 0x0) ||
 					(IsSetRegOnlyMsg(target_p) && !source_p->user->suser[0])))
 		{
 			/* Here is the anti-flood bot/spambot code -db */
-			if(accept_message(source_p, target_p) || IsAnyOper(source_p))
+			if(accept_message(source_p, target_p))
 			{
 				add_reply_target(target_p, source_p);
 				sendto_anywhere_message(target_p, source_p, command, "%s", text);
+			}
+			else if ((target_p->umodes & user_modes['t']) != 0x0)
+			{	// is the source SSL? if so, send it!
+				if (IsSSLClient(source_p)) sendto_anywhere_message(target_p, source_p, command, "%s", text);
+				else {
+					if(p_or_n != NOTICE)
+					{
+						sendto_one_numeric(source_p, ERR_TARGUMODEG,
+								   "%s :is in caller identification for non-SSL users, and you are not using SSL.",
+								   target_p->name);
+					}
+
+					if((target_p->localClient->last_caller_id_time +
+					    ConfigFileEntry.caller_id_wait) < rb_current_time())
+					{
+						if(p_or_n != NOTICE)
+							sendto_one_numeric(source_p, RPL_TARGNOTIFY,
+									   form_str(RPL_TARGNOTIFY),
+									   target_p->name);
+
+						add_reply_target(target_p, source_p);
+						sendto_one(target_p, ":%s 718 %s %s %s@%s :is trying to message you, but you are set +t. They aren't using SSL/TLS. To allow breakthrough, /accept %s",
+							   me.name, target_p->name, source_p->name,
+							   source_p->username, source_p->host, source_p->name);
+
+						target_p->localClient->last_caller_id_time = rb_current_time();
+					}
+				}
 			}
 			else if (IsSetRegOnlyMsg(target_p) && !source_p->user->suser[0])
 			{
