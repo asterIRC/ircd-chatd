@@ -87,7 +87,7 @@ static void
 _moddeinit(void)
 {
 	user_modes['B'] = 0;
-	user_mode_names['B'] = 0";
+	user_mode_names['B'] = 0;
 
 	/* disable the umode and remove it from the available list */
 	remove_conf_item("botmode", "botstring");
