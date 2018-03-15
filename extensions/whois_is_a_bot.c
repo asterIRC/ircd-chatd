@@ -76,6 +76,7 @@ _modinit(void)
 	user_mode_names['B'] = "isbot";
 
 	/* add the usermode to the available slot */
+	add_top_conf("botmode", NULL, NULL, NULL);
 	add_conf_item("botmode", "botstring", CF_QSTRING, conf_set_isabotstring);
 	add_conf_item("botmode", "high_loc", CF_YESNO, conf_set_isabotloc);
 	construct_umodebuf();
@@ -92,6 +93,7 @@ _moddeinit(void)
 	/* disable the umode and remove it from the available list */
 	remove_conf_item("botmode", "botstring");
 	remove_conf_item("botmode", "high_loc");
+	remove_top_conf("botmode");
 	construct_umodebuf();
 }
 
