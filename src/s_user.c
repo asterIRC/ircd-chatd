@@ -138,7 +138,7 @@ int user_modes[256] = {
 // simply don't define a user_mode_names= in the file
 // in unloads, you must reinitialise to NULL
 // thanks
-int user_mode_names[256] = {
+char *user_mode_names[256] = {
 	/* 0x00 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, /* 0x0F */
 	/* 0x10 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
