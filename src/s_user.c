@@ -75,7 +75,7 @@ int user_modes[256] = {
 	0,			/* E */
 	0,			/* F */
 	0,			/* G */
-	0,			/* H */
+	UMODE_HIDEOPER,	                /* H */
 	0,			/* I */
 	0,			/* J */
 	0,			/* K */
@@ -155,7 +155,7 @@ char *user_mode_names[256] = {
 	NULL,			/* E */
 	NULL,			/* F */
 	NULL,			/* G */
-	NULL,			/* H */
+	"hideoper",		/* H */
 	NULL,			/* I */
 	NULL,			/* J */
 	NULL,			/* K */
@@ -641,7 +641,7 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 	if (IsSCTP(source_p))
 		source_p->umodes |= UMODE_SCTPCLIENT;
 
-	if (source_p->umodes & UMODE_INVISIBLE)
+        if (source_p->umodes & UMODE_INVISIBLE)
 		Count.invisi++;
 
 	s_assert(!IsClient(source_p));
@@ -1351,6 +1351,13 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 		sendto_one_notice(source_p, ":*** You need oper and the override flag for +p");
 		source_p->umodes &= ~UMODE_OVERRIDE;
 	}
+
+        /* preventing anyone setting UMODE_HIDEOPER because not everyone will be IRC operator */
+
+       if (MyConnect(source_p) && (source_p->umodes & UMODE_HIDEOPER) && (!IsOper(source_p))) {
+                sendto_one_numeric(source_p, 481, ":Permission Denied - You're not an IRC operator");
+                source_p->umodes &= ~UMODE_HIDEOPER;
+       }
 
 	/* let modules providing usermodes know that we've changed our usermode --nenolod */
 	hdata.client = source_p;

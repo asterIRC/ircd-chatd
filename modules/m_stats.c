@@ -728,11 +728,14 @@ stats_operedup (struct Client *source_p)
 		if(target_p->user->away)
 			continue;
 
+                if(IsHideOper(target_p) && !IsOper(source_p))
+                        continue;
+
 		count++;
 
 		sendto_one_numeric(source_p, RPL_STATSDEBUG,
 				   "p :%s (%s@%s)",
-				   target_p->name, target_p->username, 
+				   target_p->name, target_p->username,
 				   target_p->host);
 	}
 

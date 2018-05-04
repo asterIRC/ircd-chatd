@@ -382,7 +382,7 @@ report_this_status(struct Client *source_p, struct Client *target_p)
 		{
 			int tnumeric;
 
-			tnumeric = SeesOper(source_p, target_p) ? RPL_TRACEOPERATOR : RPL_TRACEUSER;
+	                tnumeric = IsOper(target_p) ? RPL_TRACEOPERATOR : RPL_TRACEUSER;
 			sendto_one_numeric(source_p, tnumeric, form_str(tnumeric),
 					class_name, name,
 					show_ip(source_p, target_p) ? ip : empty_sockhost,

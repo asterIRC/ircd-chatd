@@ -96,7 +96,7 @@ m_who(struct Client *client_p, struct Client *source_p, int parc, const char *pa
 	char *mask;
 	rb_dlink_node *lp;
 	struct Channel *chptr = NULL;
-	int server_oper = parc > 2 ? (*parv[2] == 'o' && SeesOpers(source_p)) : 0;	/* Show OPERS only */
+	int server_oper = parc > 2 ? (*parv[2] == 'o') : 0;	/* Show OPERS only */
 	int member;
 	int operspy = 0;
 	struct who_format fmt;
@@ -467,7 +467,7 @@ do_who(struct Client *source_p, struct Client *target_p, struct membership *mspt
 	const char *q;
 
 	rb_sprintf(status, "%c%s%s",
-		   target_p->user->away ? 'G' : 'H', SeesOper(source_p, target_p) ? "*" : "", msptr ? find_channel_status(msptr, fmt->fields || IsCapable(source_p, CLICAP_MULTI_PREFIX)) : "");
+		   target_p->user->away ? 'G' : 'H', IsOper(target_p) ? "*" : "", msptr ? find_channel_status(msptr, fmt->fields || IsCapable(source_p, CLICAP_MULTI_PREFIX)) : "");
 
 	if (fmt->fields == 0)
 		sendto_one(source_p, form_str(RPL_WHOREPLY), me.name,
