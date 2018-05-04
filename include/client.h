@@ -436,6 +436,8 @@ struct ListClient
 #define UMODE_SSLCLIENT    0x8000	/* using SSL */
 #define UMODE_OVERRIDE     0x20000
 #define UMODE_NETADMIN     0x40000
+#define UMODE_HIDEOPER     0x1000000    /* Hide oper from /whois */
+
 #define UMODE_REGISTERED   0x80000	/* is regged with nick-style services (uses METADATA NICKTS rather than SU) */
 #define UMODE_SCTPCLIENT   0x100000	/* using SCTP (may be combined with SSLCLIENT if using SSL over SCTP) */
 
@@ -451,11 +453,9 @@ struct ListClient
 #define IsOverride(x)		((x)->umodes & UMODE_OVERRIDE)
 
 /* Is t an oper, and is s allowed to know this? */
-#define SeesOpers(s)		(IsOper(s) || !ConfigFileEntry.operhide)
 #define SeesOper(s, t)		(SeesOpers(s) || ((s) == (t)))
 #define SeesHelper(s, t)	(SeesOpers(s) || ((s) == (t)))
 #define SeesAnyOper(s, t)	(SeesOpers(s) || ((s) == (t)))
-
 
 /* overflow flags */
 /* EARLIER FLAGS ARE IN s_newconf.h */
@@ -557,6 +557,7 @@ extern int IsXAscii(struct Client *client_p);
 #define SendServNotice(x)       ((x)->umodes & UMODE_SERVNOTICE)
 #define SendOperwall(x)         ((x)->umodes & UMODE_OPERWALL)
 #define IsSetCallerId(x)	((x)->umodes & UMODE_CALLERID)
+#define IsHideOper(x)           ((x)->umodes & UMODE_HIDEOPER)
 #define IsService(x)		((x)->umodes & UMODE_SERVICE)
 #define IsDeaf(x)		((x)->umodes & UMODE_DEAF)
 #define IsNoForward(x)		((x)->umodes & UMODE_NOFORWARD)
